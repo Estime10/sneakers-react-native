@@ -4,26 +4,19 @@ import React from 'react';
 const Header = () => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity>
-        <Image
-          source={require('../../assets/images/logo-small.png')}
-          style={styles.logo}
-        />
-      </TouchableOpacity>
+      <Image
+        source={require('../../assets/images/name.png')}
+        style={styles.logo}
+      />
 
       <View style={styles.iconContainer}>
-        <TouchableOpacity>
-          <Image
-            source={require('../../assets/icons/plus-dark.png')}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
         <TouchableOpacity>
           <Image
             source={require('../../assets/icons/heart-dark.png')}
             style={styles.icon}
           />
         </TouchableOpacity>
+
         <TouchableOpacity>
           <View style={styles.unreadBadge}>
             <Text style={styles.unreadBadgeText}>30</Text>
@@ -43,7 +36,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
-    marginHorizontal: 20,
+    marginHorizontal: 10,
     paddingLeft: 10,
     paddingRight: 10,
   },
@@ -53,26 +46,26 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 85,
     marginLeft: -30,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
   },
 
   icon: {
-    width: 30,
-    height: 30,
+    width: 25,
+    height: 25,
     marginLeft: 20,
     resizeMode: 'contain',
   },
 
   unreadBadge: {
-    backgroundColor: '#FF3250',
+    backgroundColor: '#CB3A3A',
     position: 'absolute',
-    left: 35,
-    bottom: 18,
+    left: 32,
+    bottom: 16,
     borderRadius: 25,
-    width: 25,
+    width: 20,
     height: 18,
     justifyContent: 'center',
     alignItems: 'center',
@@ -81,6 +74,7 @@ const styles = StyleSheet.create({
   unreadBadgeText: {
     color: 'white',
     fontWeight: '600',
+    padding: 1,
   },
 });
 
