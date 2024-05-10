@@ -1,8 +1,35 @@
 {
   "expo": {
-    "name": "blank",
-    "slug": "blank",
+    "name": "Mon Application",
+    "slug": "mon-application",
     "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/logo.png",
+    "splash": {
+      "image": "./assets/images/logo-small.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.votrecompagnie.monapplication"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/name.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.votrecompagnie.monapplication"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
     "platforms": [
       "ios",
       "android",
