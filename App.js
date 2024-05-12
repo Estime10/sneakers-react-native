@@ -1,6 +1,6 @@
 import * as React from 'react';
-import NewPostScreen from './screens/NewPostScreen';
+import SignedInStack from './Navigation';
 
 export default function App() {
-  return <NewPostScreen />;
+  return <SignedInStack />;
 }

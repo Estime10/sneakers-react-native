@@ -1,18 +1,34 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 
-const Header = () => {
+const LOGO_NAME =
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/images/name.png';
+const PLUS =
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/plusHeader.png';
+const HEART =
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/heart-dark.png';
+const CHAT =
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/chat-dark.png';
+
+const Header = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Image
-        source={require('../../assets/images/name.png')}
+        source={{ uri: LOGO_NAME }}
         style={styles.logo}
       />
 
       <View style={styles.iconContainer}>
+        <TouchableOpacity onPress={() => navigation.push('AddNewPost')}>
+          <Image
+            source={{ uri: PLUS }}
+            style={styles.icon}
+          />
+        </TouchableOpacity>
+
         <TouchableOpacity>
           <Image
-            source={require('../../assets/icons/heart-dark.png')}
+            source={{ uri: HEART }}
             style={styles.icon}
           />
         </TouchableOpacity>
@@ -22,7 +38,7 @@ const Header = () => {
             <Text style={styles.unreadBadgeText}>30</Text>
           </View>
           <Image
-            source={require('../../assets/icons/chat-dark.png')}
+            source={{ uri: CHAT }}
             style={styles.icon}
           />
         </TouchableOpacity>
@@ -46,9 +62,10 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 150,
+    width: 250,
     height: 85,
-    marginLeft: -30,
+    marginLeft: -50,
+    marginTop: 10,
     resizeMode: 'cover',
   },
 
@@ -56,6 +73,8 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     marginLeft: 20,
+    marginTop: -20,
+
     resizeMode: 'contain',
   },
 

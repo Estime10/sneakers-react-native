@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { Divider, Button as RNButton } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
+import { NavigationContainer } from '@react-navigation/native';
 
 const PLACEHOLDER_IMAGE =
   '/Users/Estime/Desktop/private/react_native/sneakers/assets/images/logo.png';
@@ -13,7 +14,7 @@ const uploadPostSchema = Yup.object().shape({
   caption: Yup.string().max(2200, 'Caption has reached the character limit'),
 });
 
-const FormikPostUploader = () => {
+const FormikPostUploader = ({ navigation }) => {
   const [thumbnailUrl, setThumbnailUrl] = useState(PLACEHOLDER_IMAGE);
 
   const selectImage = async setFieldValue => {
@@ -33,7 +34,11 @@ const FormikPostUploader = () => {
   return (
     <Formik
       initialValues={{ caption: '', imageUrl: '' }}
-      onSubmit={values => console.log(values)}
+      onSubmit={values => {
+        console.log(values);
+        console.log('your post has been uploaded successfully');
+        navigation.goBack();
+      }}
       validationSchema={uploadPostSchema}
       validateOnMount={true}>
       {({
@@ -90,10 +95,11 @@ const FormikPostUploader = () => {
             />
             {isValid && (
               <Button
-                title='clear image'
+                title='clear'
                 onPress={() => {
                   setThumbnailUrl(PLACEHOLDER_IMAGE);
                   setFieldValue('imageUrl', '');
+                  setFieldValue('caption', '');
                 }}
                 titleStyle={{
                   color: 'black',

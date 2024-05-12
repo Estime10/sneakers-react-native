@@ -18,7 +18,7 @@ export const BottomTabIcons = [
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/searchTab.png',
   },
   {
-    name: 'Post',
+    name: 'AddNewPost',
     active:
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabPlus-active.png',
     inactive:
@@ -27,9 +27,9 @@ export const BottomTabIcons = [
   {
     name: 'Reel',
     active:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/reelTab-active.png',
+      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabChart-active.png',
     inactive:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/reelTab.png',
+      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabChart.png',
   },
   {
     name: 'Profile',
