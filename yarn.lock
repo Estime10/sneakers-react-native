@@ -4651,23 +4651,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-image-loader@npm:~4.7.0":
-  version: 4.7.0
-  resolution: "expo-image-loader@npm:4.7.0"
+"expo-image-loader@npm:~4.6.0":
+  version: 4.6.0
+  resolution: "expo-image-loader@npm:4.6.0"
   peerDependencies:
     expo: "*"
-  checksum: 10c0/7db9df154f1b44e9877361e0707715503eaaf2b18968b6aecb6b0205612cf40bfd99ab8c6e6d7de3a5abd35267e9636963d5050e082af063d8e527763d597eb1
+  checksum: 10c0/f3e46b409f803b4a3da1be7e9ca96b15c815e5dfbaf14891a030f489becfb81d98e65420343a65a757d306c0484342858f5169c5a3cd5dd6e73f85eee61855d4
   languageName: node
   linkType: hard
 
-"expo-image-picker@npm:15.0.4":
-  version: 15.0.4
-  resolution: "expo-image-picker@npm:15.0.4"
+"expo-image-picker@npm:14.7.1":
+  version: 14.7.1
+  resolution: "expo-image-picker@npm:14.7.1"
   dependencies:
-    expo-image-loader: "npm:~4.7.0"
+    expo-image-loader: "npm:~4.6.0"
   peerDependencies:
     expo: "*"
-  checksum: 10c0/539738af7ebdabdec8ad43363ae4b42f35f6c0edf8b0fefb763e2689e5592b46b419a0862486b4d937b5104caee08af3984a836f6ad9f64463f1e4403f4c2f95
+  checksum: 10c0/ebe15879532a6428b031b3c56eff2ff6bbd5ddf4627b52d3fbe8958f7dabba96c067e2aee756cfe023a9673a3e319c400b07f4c5aa18f505f5fab9888d2312a7
   languageName: node
   linkType: hard
 
@@ -8784,7 +8784,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.19.3"
     expo: "npm:^50.0.1"
-    expo-image-picker: "npm:15.0.4"
+    expo-image-picker: "npm:14.7.1"
     formik: "npm:^2.4.6"
     react: "npm:18.2.0"
     react-dom: "npm:18.2.0"
