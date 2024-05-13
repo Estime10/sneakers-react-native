@@ -4800,7 +4800,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-image-picker@npm:~14.7.1":
+"expo-image-picker@npm:14.7.1":
   version: 14.7.1
   resolution: "expo-image-picker@npm:14.7.1"
   dependencies:
@@ -8981,7 +8981,7 @@ __metadata:
     "@react-navigation/stack": "npm:^6.3.29"
     email-validator: "npm:^2.0.4"
     expo: "npm:^50.0.1"
-    expo-image-picker: "npm:~14.7.1"
+    expo-image-picker: "npm:14.7.1"
     formik: "npm:^2.4.6"
     react: "npm:18.2.0"
     react-dom: "npm:18.2.0"
