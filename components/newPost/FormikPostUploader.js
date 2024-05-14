@@ -12,7 +12,11 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { Divider, Button as RNButton } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
-import { firebaseAuth, firestoreDB } from '../../config/firebase.config';
+import {
+  firebaseAuth,
+  firestoreDB,
+  storage,
+} from '../../config/firebase.config';
 import {
   addDoc,
   collection,
@@ -21,6 +25,7 @@ import {
   onSnapshot,
   serverTimestamp,
 } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 const PLACEHOLDER_IMAGE =
   '/Users/Estime/Desktop/private/react_native/sneakers/assets/images/logo.png';
@@ -46,8 +51,6 @@ const FormikPostUploader = ({ navigation }) => {
 
       const userData = userDoc.data();
       const username = userData.username;
-      console.log('Username:', username);
-      console.log('User data:', userData);
 
       await addDoc(collection(firestoreDB, 'users', userId, 'posts'), {
         imageUrl: imageUrl,
@@ -96,7 +99,31 @@ const FormikPostUploader = ({ navigation }) => {
 
     if (result && !result.canceled) {
       setThumbnailUrl(result.assets[0].uri);
-      setFieldValue('imageUrl', result.assets[0].uri);
+      const downloadURL = await uploadImage(result.assets[0].uri);
+      setFieldValue('imageUrl', downloadURL);
+    }
+  };
+
+  const uploadImage = async imageUrl => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+
+      const temporaryId = Math.random().toString(36).substring(7);
+      const storageRef = ref(
+        storage,
+        `images/${firebaseAuth.currentUser.uid}/${temporaryId}`
+      );
+
+      await uploadBytes(storageRef, blob);
+
+      const downloadURL = await getDownloadURL(storageRef);
+
+      return downloadURL;
+    } catch (error) {
+      Alert.alert('Error uploading image');
+      console.error('Error uploading image:', error);
+      throw error;
     }
   };
 
@@ -121,7 +148,7 @@ const FormikPostUploader = ({ navigation }) => {
           <View style={styles.container}>
             <Image
               source={{
-                uri: thumbnailUrl ? thumbnailUrl : PLACEHOLDER_IMAGE,
+                uri: thumbnailUrl || currentUser.photoURL || PLACEHOLDER_IMAGE,
               }}
               style={{
                 width: 400,

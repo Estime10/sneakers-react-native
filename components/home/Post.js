@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { Divider } from 'react-native-elements';
 
 const postFooterIcons = [
@@ -26,8 +26,11 @@ const postFooterIcons = [
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/bookmark.png',
   },
 ];
+const avatar =
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png';
 
 const Post = ({ post }) => {
+  const [avatarUrl, setAvatarUrl] = useState(avatar);
   return (
     <View style={{ marginBottom: 30 }}>
       <Divider
@@ -57,7 +60,7 @@ const PostHeader = ({ post }) => (
     }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
       <Image
-        source={{ uri: post.avatar }}
+        source={{ uri: post.avatar || avatar }}
         style={styles.story}
       />
       <Text
@@ -79,7 +82,7 @@ const PostHeader = ({ post }) => (
 const PostImage = ({ post }) => (
   <View style={{ width: '100%', height: 450 }}>
     <Image
-      source={{ uri: post.image }}
+      source={{ uri: post.imageUrl }}
       style={{
         resizeMode: 'cover',
         height: '100%',
@@ -132,7 +135,7 @@ const Likes = ({ post }) => (
         fontSize: 12,
         marginTop: 5,
       }}>
-      {post.likes.toLocaleString('en')} likes
+      {post.likes.toLocaleString('en')} {post.likes > 1 ? 'likes' : 'like'}
     </Text>
   </View>
 );

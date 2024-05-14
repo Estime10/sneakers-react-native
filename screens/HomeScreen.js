@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import Header from '../components/home/Header';
 import Stories from '../components/home/Stories';
 import Post from '../components/home/Post';
-import { POSTS } from '../data/posts';
 import BottomTab, { BottomTabIcons } from '../components/home/BottomTab';
 import { firebaseAuth, firestoreDB } from '../config/firebase.config';
 import {
@@ -16,6 +15,7 @@ import {
 
 const HomeScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
+
   useEffect(() => {
     if (firebaseAuth.currentUser) {
       const userId = firebaseAuth.currentUser.email;
