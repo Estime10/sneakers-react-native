@@ -7,11 +7,20 @@ import {
   Alert,
 } from 'react-native';
 import React, { useState } from 'react';
-import firebase from '../../Firebase';
 import { TextInput } from 'react-native-gesture-handler';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import Validator from 'email-validator';
+import {
+  firebaseAuth,
+  firestoreDB,
+  storage,
+} from '../../config/firebase.config';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+
+const AVATAR =
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png';
 
 const LoginForm = ({ navigation }) => {
   const LoginFormSchema = Yup.object().shape({
@@ -27,9 +36,19 @@ const LoginForm = ({ navigation }) => {
 
   const onLogin = async (email, password) => {
     try {
-      await firebase.auth().signInWithEmailAndPassword(email, password);
-      console.log('firebase login success', email, password);
-      // navigation.navigate('HomeScreen');
+      await signInWithEmailAndPassword(firebaseAuth, email, password).then(
+        userCredential => {
+          const user = userCredential.user;
+          const userId = user.email;
+          setDoc(doc(firestoreDB, 'users', userId), {
+            owner_uid: userId,
+            email: email,
+            avatar: AVATAR,
+          }).then(() => {
+            navigation.navigate('HomeScreen');
+          });
+        }
+      );
     } catch (error) {
       Alert.alert(error.message);
     }
@@ -40,9 +59,7 @@ const LoginForm = ({ navigation }) => {
       <Formik
         initialValues={{ email: '', password: '' }}
         onSubmit={values => {
-          console.log(values);
           onLogin(values.email, values.password);
-          // actions.resetForm();
         }}
         validationSchema={LoginFormSchema}
         validateOnMount={true}>

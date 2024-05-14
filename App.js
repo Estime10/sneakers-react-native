@@ -1,6 +1,6 @@
 import * as React from 'react';
-import SignedInStack from './Navigation';
+import AuthNavigation from './navigation/AuthNavigation';
 
 export default function App() {
-  return <SignedInStack />;
+  return <AuthNavigation />;
 }

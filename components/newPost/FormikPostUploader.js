@@ -1,10 +1,26 @@
-import { View, Text, Image, TextInput, StyleSheet, Button } from 'react-native';
-import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TextInput,
+  StyleSheet,
+  Button,
+  Alert,
+} from 'react-native';
+import React, { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { Divider, Button as RNButton } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
-import { NavigationContainer } from '@react-navigation/native';
+import { firebaseAuth, firestoreDB } from '../../config/firebase.config';
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  serverTimestamp,
+} from 'firebase/firestore';
 
 const PLACEHOLDER_IMAGE =
   '/Users/Estime/Desktop/private/react_native/sneakers/assets/images/logo.png';
@@ -16,6 +32,59 @@ const uploadPostSchema = Yup.object().shape({
 
 const FormikPostUploader = ({ navigation }) => {
   const [thumbnailUrl, setThumbnailUrl] = useState(PLACEHOLDER_IMAGE);
+  const [posts, setPosts] = useState([]);
+  const uploadPostToFirebase = async (imageUrl, caption) => {
+    try {
+      const currentUser = firebaseAuth.currentUser;
+      const userId = currentUser.email;
+
+      // Récupérer le document de l'utilisateur actuel
+      const userDoc = await getDoc(doc(firestoreDB, 'users', userId));
+      if (!userDoc.exists()) {
+        throw new Error('User document does not exist');
+      }
+
+      const userData = userDoc.data();
+      const username = userData.username;
+      console.log('Username:', username);
+      console.log('User data:', userData);
+
+      await addDoc(collection(firestoreDB, 'users', userId, 'posts'), {
+        imageUrl: imageUrl,
+        user: userId,
+        avatar: currentUser.photoURL,
+        owner_uid: currentUser.uid,
+        caption: caption,
+        createdAt: serverTimestamp(),
+        likes: 0,
+        comments: [],
+      });
+
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert(error.message);
+      console.error('Error uploading post:', error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchUserPosts = async () => {
+      if (firebaseAuth.currentUser) {
+        const userId = firebaseAuth.currentUser.email;
+        const userPostsRef = collection(firestoreDB, 'users', userId, 'posts');
+
+        // Écouter les changements dans les posts de l'utilisateur
+        const unsubscribe = onSnapshot(userPostsRef, snapshot => {
+          const postsData = snapshot.docs.map(doc => doc.data());
+          setPosts(postsData);
+        });
+
+        return () => unsubscribe();
+      }
+    };
+
+    fetchUserPosts();
+  }, []);
 
   const selectImage = async setFieldValue => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -35,9 +104,7 @@ const FormikPostUploader = ({ navigation }) => {
     <Formik
       initialValues={{ caption: '', imageUrl: '' }}
       onSubmit={values => {
-        console.log(values);
-        console.log('your post has been uploaded successfully');
-        navigation.goBack();
+        uploadPostToFirebase(values.imageUrl, values.caption);
       }}
       validationSchema={uploadPostSchema}
       validateOnMount={true}>

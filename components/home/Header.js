@@ -1,5 +1,14 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import React from 'react';
+import { firebaseAuth } from '../../config/firebase.config';
+import { signOut } from 'firebase/auth';
 
 const LOGO_NAME =
   '/Users/Estime/Desktop/private/react_native/sneakers/assets/images/name.png';
@@ -10,16 +19,21 @@ const HEART =
 const CHAT =
   '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/chat-dark.png';
 
+const handleSignOut = () =>
+  signOut(firebaseAuth).then(() => console.log('sign out'));
+
 const Header = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <Image
-        source={{ uri: LOGO_NAME }}
-        style={styles.logo}
-      />
+      <TouchableOpacity onPress={handleSignOut}>
+        <Image
+          source={{ uri: LOGO_NAME }}
+          style={styles.logo}
+        />
+      </TouchableOpacity>
 
       <View style={styles.iconContainer}>
-        <TouchableOpacity onPress={() => navigation.push('AddNewPost')}>
+        <TouchableOpacity onPress={() => navigation.push('NewPostScreen')}>
           <Image
             source={{ uri: PLUS }}
             style={styles.icon}

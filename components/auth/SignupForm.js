@@ -4,17 +4,20 @@ import {
   StyleSheet,
   Pressable,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import React, { useState } from 'react';
 import { TextInput } from 'react-native-gesture-handler';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import Validator from 'email-validator';
+import { firebaseAuth, firestoreDB } from '../../config/firebase.config';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 const SignupForm = ({ navigation }) => {
   const SignupFormSchema = Yup.object().shape({
     email: Yup.string().email().required('Valid Email', 'Invalid Email'),
-
     username: Yup.string()
       .required()
       .min(2, 'Username must be at least 6 characters'),
@@ -23,13 +26,37 @@ const SignupForm = ({ navigation }) => {
       .min(6, 'Password must be at least 6 characters'),
   });
 
+  const AVATAR =
+    '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png';
+
+  const onSignup = async (email, password, username) => {
+    try {
+      await createUserWithEmailAndPassword(
+        firebaseAuth,
+        email,
+        password,
+        username
+      ).then(async userCredential => {
+        const user = userCredential.user;
+        await setDoc(doc(firestoreDB, 'users', user.email), {
+          owner_uid: user.email,
+          email: email,
+          username: username,
+          avatar: AVATAR,
+        });
+        navigation.navigate('HomeScreen');
+      });
+    } catch (error) {
+      Alert.alert('test', error.message);
+    }
+  };
+
   return (
     <View style={styles.Wrapper}>
       <Formik
         initialValues={{ email: '', password: '', username: '' }}
-        onSubmit={(values, actions) => {
-          console.log(values);
-          actions.resetForm();
+        onSubmit={values => {
+          onSignup(values.email, values.password, values.username);
         }}
         validationSchema={SignupFormSchema}
         validateOnMount={true}>

@@ -34,9 +34,9 @@ export const BottomTabIcons = [
   {
     name: 'Profile',
     active:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/profile.png',
+      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png',
     inactive:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/profile.png',
+      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png',
   },
 ];
 
