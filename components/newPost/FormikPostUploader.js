@@ -55,9 +55,10 @@ const FormikPostUploader = ({ navigation }) => {
         user: userId,
         avatar: currentUser.photoURL,
         owner_uid: currentUser.uid,
+        owner_email: currentUser.email,
         caption: caption,
         createdAt: serverTimestamp(),
-        likes: 0,
+        likes_by_users: [],
         comments: [],
       });
 
