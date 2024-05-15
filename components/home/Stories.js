@@ -47,9 +47,9 @@ const styles = StyleSheet.create({
 
   username: {
     color: 'white',
-    marginTop: 15,
+    marginTop: 5,
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: 'semibold',
   },
 });
 

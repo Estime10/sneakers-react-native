@@ -30,9 +30,8 @@ const avatar =
   '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png';
 
 const Post = ({ post }) => {
-  const [avatarUrl, setAvatarUrl] = useState(avatar);
   return (
-    <View style={{ marginBottom: 30 }}>
+    <View style={{ marginBottom: 50 }}>
       <Divider
         width={1}
         orientation='vertical'

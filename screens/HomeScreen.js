@@ -6,37 +6,47 @@ import Post from '../components/home/Post';
 import BottomTab, { BottomTabIcons } from '../components/home/BottomTab';
 import { firebaseAuth, firestoreDB } from '../config/firebase.config';
 import {
-  addDoc,
   collection,
-  doc,
+  getDocs,
   onSnapshot,
-  setDoc,
+  orderBy,
+  query,
 } from 'firebase/firestore';
 
 const HomeScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    if (firebaseAuth.currentUser) {
-      const userId = firebaseAuth.currentUser.email;
-      const userPostsRef = collection(firestoreDB, 'users', userId, 'posts');
+    const fetchPosts = () => {
+      const usersRef = collection(firestoreDB, 'users');
 
-      // Ajouter les posts actuels de l'utilisateur
-      posts.forEach(async post => {
-        await addDoc(userPostsRef, {
-          ...post,
-          createdAt: new Date(),
+      onSnapshot(usersRef, usersSnapshot => {
+        let allPosts = [];
+
+        usersSnapshot.docs.forEach(userDoc => {
+          const userId = userDoc.id;
+          const userPostsRef = collection(
+            firestoreDB,
+            'users',
+            userId,
+            'posts'
+          );
+          const postsQuery = query(userPostsRef, orderBy('createdAt', 'desc'));
+
+          onSnapshot(postsQuery, postsSnapshot => {
+            allPosts = [];
+            const userPosts = postsSnapshot.docs.map(postDoc => postDoc.data());
+
+            allPosts = [...allPosts, ...userPosts];
+            allPosts.sort((a, b) => b.createdAt - a.createdAt);
+
+            setPosts([...allPosts]);
+          });
         });
       });
+    };
 
-      // Écouter les changements dans les posts de l'utilisateur
-      const unsubscribe = onSnapshot(userPostsRef, snapshot => {
-        const postsData = snapshot.docs.map(doc => doc.data());
-        setPosts(postsData);
-      });
-
-      return () => unsubscribe();
-    }
+    fetchPosts();
   }, []);
 
   return (

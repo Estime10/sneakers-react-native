@@ -38,6 +38,7 @@ const uploadPostSchema = Yup.object().shape({
 const FormikPostUploader = ({ navigation }) => {
   const [thumbnailUrl, setThumbnailUrl] = useState(PLACEHOLDER_IMAGE);
   const [posts, setPosts] = useState([]);
+
   const uploadPostToFirebase = async (imageUrl, caption) => {
     try {
       const currentUser = firebaseAuth.currentUser;
@@ -48,9 +49,6 @@ const FormikPostUploader = ({ navigation }) => {
       if (!userDoc.exists()) {
         throw new Error('User document does not exist');
       }
-
-      const userData = userDoc.data();
-      const username = userData.username;
 
       await addDoc(collection(firestoreDB, 'users', userId, 'posts'), {
         imageUrl: imageUrl,
