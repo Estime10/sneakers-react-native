@@ -16,38 +16,31 @@ import {
 const HomeScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
 
-  useEffect(() => {
-    const fetchPosts = () => {
-      const usersRef = collection(firestoreDB, 'users');
+useEffect(() => {
+  const fetchPosts = async () => {
+    const usersRef = collection(firestoreDB, 'users');
+    let allPosts = [];
 
-      onSnapshot(usersRef, usersSnapshot => {
-        let allPosts = [];
+    const usersSnapshot = await getDocs(usersRef);
+    const usersPostsPromises = usersSnapshot.docs.map(async userDoc => {
+      const userId = userDoc.id;
+      const userPostsRef = collection(firestoreDB, 'users', userId, 'posts');
+      const postsQuery = query(userPostsRef, orderBy('createdAt', 'desc'));
 
-        usersSnapshot.docs.forEach(userDoc => {
-          const userId = userDoc.id;
-          const userPostsRef = collection(
-            firestoreDB,
-            'users',
-            userId,
-            'posts'
-          );
-          const postsQuery = query(userPostsRef, orderBy('createdAt', 'desc'));
+      const postsSnapshot = await getDocs(postsQuery);
+      const userPosts = postsSnapshot.docs.map(postDoc => postDoc.data());
+      return userPosts;
+    });
 
-          onSnapshot(postsQuery, postsSnapshot => {
-            allPosts = [];
-            const userPosts = postsSnapshot.docs.map(postDoc => postDoc.data());
+    const usersPosts = await Promise.all(usersPostsPromises);
+    allPosts = usersPosts.flat();
+    allPosts.sort((a, b) => b.createdAt - a.createdAt);
+    setPosts(allPosts);
+  };
 
-            allPosts = [...allPosts, ...userPosts];
-            allPosts.sort((a, b) => b.createdAt - a.createdAt);
+  fetchPosts();
+}, []);
 
-            setPosts([...allPosts]);
-          });
-        });
-      });
-    };
-
-    fetchPosts();
-  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
