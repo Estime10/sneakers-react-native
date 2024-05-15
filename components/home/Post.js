@@ -1,35 +1,53 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import React, { useState } from 'react';
 import { Divider } from 'react-native-elements';
+import { arrayRemove, arrayUnion, doc, updateDoc } from 'firebase/firestore';
+import { firebaseAuth, firestoreDB } from '../../config/firebase.config';
 
-const postFooterIcons = [
-  {
-    name: 'Like',
-    imageUrl:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/heart-dark.png',
-    likedImageUrl:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/heart-fullDark.png',
-  },
-  {
-    name: 'Comment',
-    imageUrl:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/comment-dark.png',
-  },
-  {
-    name: 'Share',
-    imageUrl:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/share.png',
-  },
-  {
-    name: 'Save',
-    imageUrl:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/bookmark.png',
-  },
-];
-const avatar =
+const AVATAR =
   '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png';
+const LIKE =
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/footer_heart.png';
+const LIKED =
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/heart-fullDark.png';
+const COMMENT =
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/comment-dark.png';
+const SHARE =
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/share.png';
+const SAVE =
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/bookmark.png';
 
 const Post = ({ post }) => {
+  const handleLike = async post => {
+    const currentUserEmail = firebaseAuth.currentUser.email;
+    const postRef = doc(firestoreDB, 'posts', post.id);
+
+    if (post.likes_by_users && Array.isArray(post.likes_by_users)) {
+      const currentLikeStatus = !post.likes_by_users.includes(currentUserEmail);
+
+      try {
+        await updateDoc(postRef, {
+          likes_by_users: currentLikeStatus
+            ? arrayUnion(currentUserEmail)
+            : arrayRemove(currentUserEmail),
+        });
+        console.log('Like status updated successfully');
+      } catch (error) {
+        Alert.alert('Error updating like status');
+        console.error('Error updating like status: ', error);
+      }
+    } else {
+      console.error('Likes_by_users is not defined or not an array');
+    }
+  };
+
   return (
     <View style={{ marginBottom: 50 }}>
       <Divider
@@ -39,7 +57,10 @@ const Post = ({ post }) => {
       <PostHeader post={post} />
       <PostImage post={post} />
       <View style={{ marginHorizontal: 15, marginTop: 10 }}>
-        <PostFooter />
+        <PostFooter
+          post={post}
+          handleLike={handleLike}
+        />
         <Likes post={post} />
         <Caption post={post} />
         <CommentSection post={post} />
@@ -59,7 +80,7 @@ const PostHeader = ({ post }) => (
     }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
       <Image
-        source={{ uri: post.avatar || avatar }}
+        source={{ uri: post.avatar || AVATAR }}
         style={styles.story}
       />
       <Text
@@ -91,38 +112,37 @@ const PostImage = ({ post }) => (
   </View>
 );
 
-const PostFooter = () => (
+const PostFooter = ({ handleLike, post }) => (
   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
     <View style={styles.leftFooterIconContainer}>
-      <Icon
-        imgStyle={styles.footerIcon}
-        imgUrl={postFooterIcons[0].imageUrl}
-      />
-      <Icon
-        imgStyle={styles.footerIcon}
-        imgUrl={postFooterIcons[1].imageUrl}
-      />
-      <Icon
-        imgStyle={styles.footerIcon}
-        imgUrl={postFooterIcons[2].imageUrl}
-      />
+      <TouchableOpacity onPress={() => handleLike(post)}>
+        <Image
+          style={styles.footerIcon}
+          source={{ uri: LIKE }}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity>
+        <Image
+          style={styles.footerIcon}
+          source={{ uri: COMMENT }}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity>
+        <Image
+          style={styles.footerIcon}
+          source={{ uri: SHARE }}
+        />
+      </TouchableOpacity>
     </View>
     <View>
-      <Icon
-        imgStyle={styles.footerIcon}
-        imgUrl={postFooterIcons[3].imageUrl}
-      />
+      <TouchableOpacity>
+        <Image
+          style={styles.footerIcon}
+          source={{ uri: SAVE }}
+        />
+      </TouchableOpacity>
     </View>
   </View>
-);
-
-const Icon = ({ imgStyle, imgUrl }) => (
-  <TouchableOpacity>
-    <Image
-      source={{ uri: imgUrl }}
-      style={imgStyle}
-    />
-  </TouchableOpacity>
 );
 
 const Likes = ({ post }) => (
