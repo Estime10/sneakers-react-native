@@ -14,69 +14,89 @@ import {
 } from 'firebase/firestore';
 
 const HomeScreen = ({ navigation }) => {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState([])
+  const [users, setUsers] = useState([])
 
-useEffect(() => {
-  const unsubscribes = {};
+  useEffect(() => {
+    const unsubscribeUsers = onSnapshot(
+      collection(firestoreDB, 'users'),
+      snapshot => {
+        const usersData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        setUsers(usersData)
+      },
+      error => {
+        console.error(
+          'Erreur lors de la récupération des utilisateurs : ',
+          error
+        )
+      }
+    )
 
-  const unsubscribeUsers = onSnapshot(
-    collection(firestoreDB, 'users'),
-    snapshot => {
-      snapshot.docChanges().forEach(change => {
-        const userId = change.doc.id;
-        const userPostsRef = collection(firestoreDB, 'users', userId, 'posts');
-        const postsQuery = query(userPostsRef, orderBy('createdAt', 'desc'));
-
-        if (change.type === 'added' || change.type === 'modified') {
-          const unsubscribePosts = onSnapshot(postsQuery, postsSnapshot => {
-            const newPosts = postsSnapshot.docs.map(postDoc => ({
-              id: postDoc.id,
-              ...postDoc.data(),
-            }));
-            setPosts(prevPosts => [
-              ...newPosts.filter(
-                post => !prevPosts.some(prevPost => prevPost.id === post.id)
-              ),
-              ...prevPosts,
-            ]);
-          });
-
-          unsubscribes[userId] = unsubscribePosts;
-        } else if (change.type === 'removed') {
-          if (unsubscribes[userId]) {
-            unsubscribes[userId]();
-            delete unsubscribes[userId];
-          }
-          setPosts(prevPosts =>
-            prevPosts.filter(post => post.userId !== userId)
-          );
-        }
-      });
+    return () => {
+      unsubscribeUsers()
     }
-  );
+  }, [])
 
-  return () => {
-    unsubscribeUsers();
-    Object.values(unsubscribes).forEach(unsubscribe => unsubscribe());
-  };
-}, []);
+  useEffect(() => {
+    const allPosts = []
 
-return (
-  <SafeAreaView style={styles.container}>
-    <StatusBar barStyle='light-content' />
-    <Header navigation={navigation} />
-    <Stories />
-    <ScrollView showsVerticalScrollIndicator={false}>
-      {posts.map((post, index) => (
-        <Post
-          post={post}
-          key={index}
-        />
-      ))}
-    </ScrollView>
-    <BottomTab icons={BottomTabIcons} />
-  </SafeAreaView>
-);
+    const fetchPosts = async () => {
+      const usersSnapshot = await getDocs(collection(firestoreDB, 'users'))
+      for (let userDoc of usersSnapshot.docs) {
+        const userId = userDoc.id
+
+        onSnapshot(collection(userDoc.ref, 'posts'), userPostsSnapshot => {
+          userPostsSnapshot.docChanges().forEach(change => {
+            const postDoc = change.doc
+            const post = {
+              id: postDoc.id,
+              userId: userId,
+              ...postDoc.data(),
+            }
+
+            if (change.type === 'added') {
+              allPosts.push(post)
+            } else if (change.type === 'modified') {
+              const index = allPosts.findIndex(p => p.id === post.id)
+              if (index !== -1) {
+                allPosts[index] = post
+              }
+            } else if (change.type === 'removed') {
+              const index = allPosts.findIndex(p => p.id === post.id)
+              if (index !== -1) {
+                allPosts.splice(index, 1)
+              }
+            }
+          })
+
+          allPosts.sort((a, b) => b.createdAt - a.createdAt)
+          setPosts([...allPosts])
+        })
+      }
+    }
+
+    fetchPosts()
+  }, [users])
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle='light-content' />
+      <Header navigation={navigation} />
+      <Stories />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {posts.map((post, index) => (
+          <Post
+            post={post}
+            key={index}
+          />
+        ))}
+      </ScrollView>
+      <BottomTab icons={BottomTabIcons} />
+    </SafeAreaView>
+  )
 };
 
 const styles = StyleSheet.create({

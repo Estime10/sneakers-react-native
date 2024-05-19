@@ -6,47 +6,80 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import React, { useState } from 'react';
-import { Divider } from 'react-native-elements';
-import { arrayRemove, arrayUnion, doc, updateDoc } from 'firebase/firestore';
-import { firebaseAuth, firestoreDB } from '../../config/firebase.config';
+import React, { useEffect, useState } from 'react'
+import { Divider } from 'react-native-elements'
+import {
+  arrayRemove,
+  arrayUnion,
+  doc,
+  getDoc,
+  onSnapshot,
+  updateDoc,
+} from 'firebase/firestore'
+import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
 
 const AVATAR =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png';
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png'
 const LIKE =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/footer_heart.png';
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/footer_heart.png'
 const LIKED =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/heart-fullDark.png';
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/heart-fullDark.png'
 const COMMENT =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/comment-dark.png';
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/comment-dark.png'
 const SHARE =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/share.png';
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/share.png'
 const SAVE =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/bookmark.png';
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/bookmark.png'
 
 const Post = ({ post }) => {
-  const handleLike = async post => {
-    const currentUserEmail = firebaseAuth.currentUser.email;
-    const postRef = doc(firestoreDB, 'posts', post.id);
+  const [currentPost, setCurrentPost] = useState(post)
+  useEffect(() => {
+    const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
 
-    if (post.likes_by_users && Array.isArray(post.likes_by_users)) {
-      const currentLikeStatus = !post.likes_by_users.includes(currentUserEmail);
-
-      try {
-        await updateDoc(postRef, {
-          likes_by_users: currentLikeStatus
-            ? arrayUnion(currentUserEmail)
-            : arrayRemove(currentUserEmail),
-        });
-        console.log('Like status updated successfully');
-      } catch (error) {
-        Alert.alert('Error updating like status');
-        console.error('Error updating like status: ', error);
+    const unsubscribe = onSnapshot(postRef, doc => {
+      if (doc.exists()) {
+        setCurrentPost(doc.data())
+      } else {
+        console.error('No such document!')
       }
-    } else {
-      console.error('Likes_by_users is not defined or not an array');
+    })
+
+    return () => unsubscribe()
+  }, [post.userId, post.id])
+
+  const handleLike = async () => {
+    const currentUserEmail = firebaseAuth.currentUser.email
+    const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
+    const docSnap = await getDoc(postRef)
+
+    if (!docSnap.exists()) {
+      Alert.alert('Error: Post does not exist')
+      return
     }
-  };
+
+    const postLikes = docSnap.data().likes_by_users || []
+    const currentLikeStatus = !postLikes.includes(currentUserEmail)
+
+    try {
+      await updateDoc(postRef, {
+        likes_by_users: currentLikeStatus
+          ? arrayUnion(currentUserEmail)
+          : arrayRemove(currentUserEmail),
+      })
+
+      // Mise à jour de l'état local du post avec les nouveaux likes
+      const updatedPost = {
+        ...post,
+        likes_by_users: currentLikeStatus
+          ? [...postLikes, currentUserEmail]
+          : postLikes.filter(email => email !== currentUserEmail),
+      }
+      setCurrentPost(updatedPost)
+    } catch (error) {
+      Alert.alert('Error updating like status')
+      console.error('Error updating like status: ', error)
+    }
+  }
 
   return (
     <View style={{ marginBottom: 50 }}>
@@ -67,8 +100,8 @@ const Post = ({ post }) => {
         <Comments post={post} />
       </View>
     </View>
-  );
-};
+  )
+}
 
 const PostHeader = ({ post }) => (
   <View
@@ -97,7 +130,7 @@ const PostHeader = ({ post }) => (
       <Text style={{ color: 'white', fontWeight: 900 }}>...</Text>
     </TouchableOpacity>
   </View>
-);
+)
 
 const PostImage = ({ post }) => (
   <View style={{ width: '100%', height: 450 }}>
@@ -110,7 +143,7 @@ const PostImage = ({ post }) => (
       }}
     />
   </View>
-);
+)
 
 const PostFooter = ({ handleLike, post }) => (
   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -118,7 +151,7 @@ const PostFooter = ({ handleLike, post }) => (
       <TouchableOpacity onPress={() => handleLike(post)}>
         <Image
           style={styles.footerIcon}
-          source={{ uri: LIKE }}
+          source={{ uri: post.likes > 0 ? LIKED : LIKE }}
         />
       </TouchableOpacity>
       <TouchableOpacity>
@@ -143,7 +176,7 @@ const PostFooter = ({ handleLike, post }) => (
       </TouchableOpacity>
     </View>
   </View>
-);
+)
 
 const Likes = ({ post }) => (
   <View style={{ flexDirection: 'row', marginTop: 5 }}>
@@ -154,11 +187,11 @@ const Likes = ({ post }) => (
         fontSize: 12,
         marginTop: 5,
       }}>
-      {(post.likes || 0).toLocaleString('en')}{' '}
-      {post.likes > 1 ? 'likes' : 'like'}{' '}
+      {(post.likes_by_users?.length || 0).toLocaleString('en')}{' '}
+      {post.likes_by_users?.length > 1 ? 'likes' : 'like'}
     </Text>
   </View>
-);
+)
 
 const Caption = ({ post }) => (
   <View style={{ marginTop: 10 }}>
