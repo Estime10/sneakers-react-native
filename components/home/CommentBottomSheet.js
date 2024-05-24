@@ -35,16 +35,10 @@ import {
   serverTimestamp,
 } from 'firebase/firestore'
 import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
+import { icons } from '../../constants'
 import moment from 'moment'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
-
-const LIKE =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/footer_heart.png'
-const LIKED =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/heart-fullDark.png'
-const AVATAR =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png'
 
 const BottomModal = forwardRef((props, ref) => {
   const { post } = props
@@ -218,9 +212,9 @@ const BottomModal = forwardRef((props, ref) => {
                           alignItems: 'flex-end',
                         }}>
                         <Image
-                          source={{
-                            uri: comment.avatar ? comment.avatar : AVATAR,
-                          }}
+                          source={
+                            comment.avatar ? comment.avatar : icons.TAB_AVATAR
+                          }
                           style={styles.avatar}
                         />
                         <Text
@@ -262,7 +256,7 @@ const BottomModal = forwardRef((props, ref) => {
                         <View style={{ alignItems: 'center', marginTop: 10 }}>
                           <TouchableOpacity>
                             <Image
-                              source={{ uri: LIKE }}
+                              source={icons.LIKE}
                               style={{ width: 15, height: 15 }}
                             />
                           </TouchableOpacity>

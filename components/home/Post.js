@@ -18,19 +18,7 @@ import {
 } from 'firebase/firestore'
 import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
 import CommentBottomSheet from './CommentBottomSheet'
-
-const AVATAR =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png'
-const LIKE =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/footer_heart.png'
-const LIKED =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/heart-fullDark.png'
-const COMMENT =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/comment-dark.png'
-const SHARE =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/share.png'
-const SAVE =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/bookmark.png'
+import { icons } from '../../constants'
 
 const Post = ({ post }) => {
   const [currentPost, setCurrentPost] = useState(post)
@@ -124,7 +112,7 @@ const PostHeader = ({ post }) => (
     }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
       <Image
-        source={{ uri: post.avatar || AVATAR }}
+        source={post.avatar ? post.avatar : icons.TAB_AVATAR}
         style={styles.story}
       />
       <Text
@@ -162,24 +150,24 @@ const PostFooter = ({ handleLike, handleComment, post }) => (
       <TouchableOpacity onPress={() => handleLike(post)}>
         <Image
           style={styles.footerIcon}
-          source={{
-            uri: post.likes_by_users.includes(firebaseAuth.currentUser.email)
-              ? LIKED
-              : LIKE,
-          }}
+          source={
+            post.likes_by_users.includes(firebaseAuth.currentUser.email)
+              ? icons.LIKED
+              : icons.LIKE
+          }
         />
       </TouchableOpacity>
       <TouchableOpacity onPress={handleComment}>
         <Image
           style={styles.footerIcon}
-          source={{ uri: COMMENT }}
+          source={icons.COMMENT}
         />
       </TouchableOpacity>
 
       <TouchableOpacity>
         <Image
           style={styles.footerIcon}
-          source={{ uri: SHARE }}
+          source={icons.SHARE}
         />
       </TouchableOpacity>
     </View>
@@ -187,7 +175,7 @@ const PostFooter = ({ handleLike, handleComment, post }) => (
       <TouchableOpacity>
         <Image
           style={styles.footerIcon}
-          source={{ uri: SAVE }}
+          source={icons.BOOKMARK}
         />
       </TouchableOpacity>
     </View>
@@ -249,10 +237,7 @@ const styles = StyleSheet.create({
   story: {
     width: 35,
     height: 35,
-    borderRadius: 50,
     marginLeft: 6,
-    borderWidth: 1.5,
-    borderColor: '#EFEDED',
   },
 
   footerIcon: {
@@ -265,5 +250,5 @@ const styles = StyleSheet.create({
     width: '25%',
     justifyContent: 'space-between',
   },
-});
+})
 export default Post;

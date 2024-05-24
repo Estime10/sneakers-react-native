@@ -9,25 +9,17 @@ import {
 import React from 'react';
 import { firebaseAuth } from '../../config/firebase.config';
 import { signOut } from 'firebase/auth';
-
-const LOGO_NAME =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/images/name.png';
-const PLUS =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/plusHeader.png';
-const HEART =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/heart-dark.png';
-const CHAT =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/chat-dark.png';
+import { icons } from '../../constants'
 
 const handleSignOut = () =>
-  signOut(firebaseAuth).then(() => console.log('sign out'));
+  signOut(firebaseAuth).then(() => console.log('sign out'))
 
 const Header = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={handleSignOut}>
         <Image
-          source={{ uri: LOGO_NAME }}
+          source={icons.LOGO_NAME}
           style={styles.logo}
         />
       </TouchableOpacity>
@@ -35,14 +27,14 @@ const Header = ({ navigation }) => {
       <View style={styles.iconContainer}>
         <TouchableOpacity onPress={() => navigation.push('NewPostScreen')}>
           <Image
-            source={{ uri: PLUS }}
+            source={icons.PLUS_HEADER}
             style={styles.icon}
           />
         </TouchableOpacity>
 
         <TouchableOpacity>
           <Image
-            source={{ uri: HEART }}
+            source={icons.NOTIFICATION}
             style={styles.icon}
           />
         </TouchableOpacity>
@@ -52,14 +44,14 @@ const Header = ({ navigation }) => {
             <Text style={styles.unreadBadgeText}>30</Text>
           </View>
           <Image
-            source={{ uri: CHAT }}
+            source={icons.CHAT}
             style={styles.icon}
           />
         </TouchableOpacity>
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -93,22 +85,21 @@ const styles = StyleSheet.create({
   },
 
   unreadBadge: {
-    backgroundColor: '#CB3A3A',
+    backgroundColor: '#808080',
     position: 'absolute',
-    left: 32,
+    left: 30,
     bottom: 16,
     borderRadius: 25,
     width: 20,
     height: 18,
     justifyContent: 'center',
-    alignItems: 'center',
     zIndex: 100,
   },
   unreadBadgeText: {
-    color: 'white',
-    fontWeight: '600',
+    color: '#fff',
+    fontWeight: '700',
     padding: 1,
   },
-});
+})
 
 export default Header;

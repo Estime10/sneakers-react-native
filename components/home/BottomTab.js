@@ -15,7 +15,7 @@ export const BottomTabIcons = [
     active:
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabSearch-active.png',
     inactive:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/searchTab.png',
+      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabSearch.png',
   },
   {
     name: 'AddNewPost',
@@ -34,14 +34,14 @@ export const BottomTabIcons = [
   {
     name: 'Profile',
     active:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png',
+      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabAvatar-active.png',
     inactive:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png',
+      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabAvatar.png',
   },
-];
+]
 
 const BottomTab = ({ icons }) => {
-  const [activeTab, setActiveTab] = useState('Home');
+  const [activeTab, setActiveTab] = useState('Home')
 
   const Icon = ({ icon }) => (
     <TouchableOpacity onPress={() => setActiveTab(icon.name)}>
@@ -49,14 +49,11 @@ const BottomTab = ({ icons }) => {
         source={{ uri: activeTab === icon.name ? icon.active : icon.inactive }}
         style={[
           styles.icon,
-          icon.name === 'Profile' ? styles.profilePic() : null,
-          activeTab === 'Profile' && icon.name === activeTab
-            ? styles.profilePic(activeTab)
-            : null,
+          activeTab === 'Profile' && icon.name === activeTab,
         ]}
       />
     </TouchableOpacity>
-  );
+  )
 
   return (
     <View style={styles.wrapper}>
@@ -73,8 +70,8 @@ const BottomTab = ({ icons }) => {
         ))}
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -93,12 +90,8 @@ const styles = StyleSheet.create({
   icon: {
     width: 30,
     height: 30,
-    marginTop: 10,
+    marginTop: 5,
+    marginBottom: 10,
   },
-  profilePic: activeTab => ({
-    borderRadius: 50,
-    borderWidth: activeTab === 'Profile' ? 2 : 0,
-    borderColor: '#CB3A3A',
-  }),
 })
 export default BottomTab;
