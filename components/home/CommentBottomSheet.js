@@ -13,15 +13,13 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  SafeAreaView,
   Image,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native'
 import {
   BottomSheetModal,
-  BottomSheetScrollView,
   BottomSheetTextInput,
   BottomSheetFooter,
 } from '@gorhom/bottom-sheet'
@@ -32,6 +30,8 @@ import {
   doc,
   getDoc,
   onSnapshot,
+  orderBy,
+  query,
   serverTimestamp,
 } from 'firebase/firestore'
 import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
@@ -60,11 +60,13 @@ const BottomModal = forwardRef((props, ref) => {
       const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
       const commentsCollectionRef = collection(postRef, 'comments')
 
-      const unsubscribe = onSnapshot(commentsCollectionRef, snapshot => {
-        const commentsData = snapshot.docs.map(doc => doc.data())
-        setCommentsList(commentsData)
-      })
-
+      const unsubscribe = onSnapshot(
+        query(commentsCollectionRef, orderBy('createdAt', 'desc')),
+        snapshot => {
+          const commentsData = snapshot.docs.map(doc => doc.data())
+          setCommentsList(commentsData)
+        }
+      )
       return () => unsubscribe()
     }
 
@@ -103,7 +105,6 @@ const BottomModal = forwardRef((props, ref) => {
   }
 
   const uploadPostSchema = Yup.object().shape({
-    imageUrl: Yup.string().required('an image is required'),
     caption: Yup.string().max(2200, 'Caption has reached the character limit'),
   })
 
@@ -174,138 +175,142 @@ const BottomModal = forwardRef((props, ref) => {
   )
 
   return (
-    <View>
-      <BottomSheetModal
-        ref={ref}
-        index={0}
-        snapPoints={snapPoints}
-        handlePanDownToClose={true}
-        handleIndicatorStyle={styles.indicator}
-        backgroundStyle={{
-          backgroundColor: '#000000',
-        }}
-        backdropComponent={renderBackdrop}
-        footerComponent={renderFooter}>
-        <View>
-          <Text style={styles.title}>Comments</Text>
-          <Divider
-            width={1}
-            orientation='vertical'
-            style={styles.divider}
-          />
-        </View>
-        <View style={styles.scrollViewContainer}>
-          <ScrollView
-            vertical
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.commentContainer}>
-            {Array.isArray(commentsList) &&
-              commentsList.map((comment, index) => (
-                <View key={index}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'flex-end',
-                      }}>
-                      <Image
-                        source={{
-                          uri: comment.avatar ? comment.avatar : AVATAR,
-                        }}
-                        style={styles.avatar}
-                      />
-                      <Text
-                        style={{
-                          color: '#ffff',
-                          paddingRight: 50,
-                          fontSize: 10,
-                          fontWeight: 'bold',
-                        }}>
-                        {comment.username ? comment.username : comment.user}
-                      </Text>
-                      <Text
-                        style={{
-                          color: '#ffff',
-                          fontSize: 10,
-                        }}>
-                        {comment.createdAt
-                          ? moment(comment.createdAt.toDate()).fromNow()
-                          : 'N/A'}
-                      </Text>
-                    </View>
-                  </View>
-                  <View>
+    <TouchableWithoutFeedback
+      onPress={Keyboard.dismiss}
+      accessible={false}>
+      <View>
+        <BottomSheetModal
+          ref={ref}
+          index={0}
+          snapPoints={snapPoints}
+          handlePanDownToClose={true}
+          handleIndicatorStyle={styles.indicator}
+          backgroundStyle={{
+            backgroundColor: '#000000',
+          }}
+          backdropComponent={renderBackdrop}
+          footerComponent={renderFooter}>
+          <View>
+            <Text style={styles.title}>Comments</Text>
+            <Divider
+              width={1}
+              orientation='vertical'
+              style={styles.divider}
+            />
+          </View>
+          <View style={styles.scrollViewContainer}>
+            <ScrollView
+              vertical
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.commentContainer}>
+              {Array.isArray(commentsList) &&
+                commentsList.map((comment, index) => (
+                  <View key={index}>
                     <View
                       style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
+                        alignItems: 'center',
                       }}>
-                      <Text
+                      <View
                         style={{
-                          color: '#ffff',
-                          fontSize: 12,
-
-                          width: '90%',
-                          marginTop: 8,
+                          flexDirection: 'row',
+                          alignItems: 'flex-end',
                         }}>
-                        {comment.text}
-                      </Text>
-                      <View style={{ alignItems: 'center', marginTop: 10 }}>
-                        <TouchableOpacity>
-                          <Image
-                            source={{ uri: LIKE }}
-                            style={{ width: 15, height: 15 }}
-                          />
-                        </TouchableOpacity>
+                        <Image
+                          source={{
+                            uri: comment.avatar ? comment.avatar : AVATAR,
+                          }}
+                          style={styles.avatar}
+                        />
+                        <Text
+                          style={{
+                            color: '#ffff',
+                            paddingRight: 50,
+                            fontSize: 10,
+                            fontWeight: 'bold',
+                          }}>
+                          {comment.username ? comment.username : comment.user}
+                        </Text>
                         <Text
                           style={{
                             color: '#ffff',
                             fontSize: 10,
-                            marginTop: 2,
                           }}>
-                          {comment.liked ? comment.liked : 0}
+                          {comment.createdAt
+                            ? moment(comment.createdAt.toDate()).fromNow()
+                            : 'N/A'}
                         </Text>
                       </View>
                     </View>
                     <View>
-                      <TouchableOpacity>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                        }}>
                         <Text
                           style={{
                             color: '#ffff',
                             fontSize: 12,
-                            marginTop: 0,
+
+                            width: '90%',
+                            marginTop: 8,
                           }}>
-                          reply
+                          {comment.text}
                         </Text>
-                      </TouchableOpacity>
-                      <View
-                        style={{
-                          marginLeft: 25,
-                          marginTop: 5,
-                          width: '50%',
-                        }}>
-                        <TextInput
-                          style={[styles.replyTextInput, { maxHeight: 50 }]}
-                          placeholder='Reply'
-                          placeholderTextColor={'#979A9A'}
-                          multiline={true}
-                          numberOfLines={2}
-                          scrollEnabled={true}
-                        />
+                        <View style={{ alignItems: 'center', marginTop: 10 }}>
+                          <TouchableOpacity>
+                            <Image
+                              source={{ uri: LIKE }}
+                              style={{ width: 15, height: 15 }}
+                            />
+                          </TouchableOpacity>
+                          <Text
+                            style={{
+                              color: '#ffff',
+                              fontSize: 10,
+                              marginTop: 2,
+                            }}>
+                            {comment.liked ? comment.liked : 0}
+                          </Text>
+                        </View>
+                      </View>
+                      <View>
+                        <TouchableOpacity>
+                          <Text
+                            style={{
+                              color: '#ffff',
+                              fontSize: 12,
+                              marginTop: 0,
+                            }}>
+                            reply
+                          </Text>
+                        </TouchableOpacity>
+                        <View
+                          style={{
+                            marginLeft: 25,
+                            marginTop: 5,
+                            width: '50%',
+                          }}>
+                          <TextInput
+                            style={[styles.replyTextInput, { maxHeight: 50 }]}
+                            placeholder='Reply'
+                            placeholderTextColor={'#979A9A'}
+                            multiline={true}
+                            numberOfLines={2}
+                            scrollEnabled={true}
+                          />
+                        </View>
                       </View>
                     </View>
                   </View>
-                </View>
-              ))}
-          </ScrollView>
-        </View>
-      </BottomSheetModal>
-    </View>
+                ))}
+            </ScrollView>
+          </View>
+        </BottomSheetModal>
+      </View>
+    </TouchableWithoutFeedback>
   )
 })
 
@@ -332,10 +337,10 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     flexDirection: 'row',
     margin: 10,
-    height: 320,
+    height: '100%',
   },
   commentContainer: {
-    padding: 1,
+    padding: 10,
   },
   comment: {
     flexDirection: 'row',
