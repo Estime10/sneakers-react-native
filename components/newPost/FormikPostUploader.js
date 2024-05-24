@@ -36,18 +36,18 @@ const uploadPostSchema = Yup.object().shape({
 });
 
 const FormikPostUploader = ({ navigation }) => {
-  const [thumbnailUrl, setThumbnailUrl] = useState(PLACEHOLDER_IMAGE);
-  const [posts, setPosts] = useState([]);
+  const [thumbnailUrl, setThumbnailUrl] = useState(PLACEHOLDER_IMAGE)
+  const [posts, setPosts] = useState([])
 
   const uploadPostToFirebase = async (imageUrl, caption) => {
     try {
-      const currentUser = firebaseAuth.currentUser;
-      const userId = currentUser.email;
+      const currentUser = firebaseAuth.currentUser
+      const userId = currentUser.email
 
       // Récupérer le document de l'utilisateur actuel
-      const userDoc = await getDoc(doc(firestoreDB, 'users', userId));
+      const userDoc = await getDoc(doc(firestoreDB, 'users', userId))
       if (!userDoc.exists()) {
-        throw new Error('User document does not exist');
+        throw new Error('User document does not exist')
       }
 
       await addDoc(collection(firestoreDB, 'users', userId, 'posts'), {
@@ -60,33 +60,33 @@ const FormikPostUploader = ({ navigation }) => {
         createdAt: serverTimestamp(),
         likes_by_users: [],
         comments: [],
-      });
+      })
 
-      navigation.goBack();
+      navigation.goBack()
     } catch (error) {
-      Alert.alert(error.message);
-      console.error('Error uploading post:', error);
+      Alert.alert(error.message)
+      console.error('Error uploading post:', error)
     }
-  };
+  }
 
   useEffect(() => {
     const fetchUserPosts = async () => {
       if (firebaseAuth.currentUser) {
-        const userId = firebaseAuth.currentUser.email;
-        const userPostsRef = collection(firestoreDB, 'users', userId, 'posts');
+        const userId = firebaseAuth.currentUser.email
+        const userPostsRef = collection(firestoreDB, 'users', userId, 'posts')
 
         // Écouter les changements dans les posts de l'utilisateur
         const unsubscribe = onSnapshot(userPostsRef, snapshot => {
-          const postsData = snapshot.docs.map(doc => doc.data());
-          setPosts(postsData);
-        });
+          const postsData = snapshot.docs.map(doc => doc.data())
+          setPosts(postsData)
+        })
 
-        return () => unsubscribe();
+        return () => unsubscribe()
       }
-    };
+    }
 
-    fetchUserPosts();
-  }, []);
+    fetchUserPosts()
+  }, [])
 
   const selectImage = async setFieldValue => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -94,43 +94,43 @@ const FormikPostUploader = ({ navigation }) => {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
-    });
+    })
 
     if (result && !result.canceled) {
-      setThumbnailUrl(result.assets[0].uri);
-      const downloadURL = await uploadImage(result.assets[0].uri);
-      setFieldValue('imageUrl', downloadURL);
+      setThumbnailUrl(result.assets[0].uri)
+      const downloadURL = await uploadImage(result.assets[0].uri)
+      setFieldValue('imageUrl', downloadURL)
     }
-  };
+  }
 
   const uploadImage = async imageUrl => {
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
+      const response = await fetch(imageUrl)
+      const blob = await response.blob()
 
-      const temporaryId = Math.random().toString(36).substring(7);
+      const temporaryId = Math.random().toString(36).substring(7)
       const storageRef = ref(
         storage,
         `images/${firebaseAuth.currentUser.uid}/${temporaryId}`
-      );
+      )
 
-      await uploadBytes(storageRef, blob);
+      await uploadBytes(storageRef, blob)
 
-      const downloadURL = await getDownloadURL(storageRef);
+      const downloadURL = await getDownloadURL(storageRef)
 
-      return downloadURL;
+      return downloadURL
     } catch (error) {
-      Alert.alert('Error uploading image');
-      console.error('Error uploading image:', error);
-      throw error;
+      Alert.alert('Error uploading image')
+      console.error('Error uploading image:', error)
+      throw error
     }
-  };
+  }
 
   return (
     <Formik
       initialValues={{ caption: '', imageUrl: '' }}
       onSubmit={values => {
-        uploadPostToFirebase(values.imageUrl, values.caption);
+        uploadPostToFirebase(values.imageUrl, values.caption)
       }}
       validationSchema={uploadPostSchema}
       validateOnMount={true}>
@@ -190,9 +190,9 @@ const FormikPostUploader = ({ navigation }) => {
               <Button
                 title='clear'
                 onPress={() => {
-                  setThumbnailUrl(PLACEHOLDER_IMAGE);
-                  setFieldValue('imageUrl', '');
-                  setFieldValue('caption', '');
+                  setThumbnailUrl(PLACEHOLDER_IMAGE)
+                  setFieldValue('imageUrl', '')
+                  setFieldValue('caption', '')
                 }}
                 titleStyle={{
                   color: 'black',
@@ -221,14 +221,13 @@ const FormikPostUploader = ({ navigation }) => {
         </>
       )}
     </Formik>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     marginLeft: 5,
     marginRight: 5,
-    justifyContent: 'space-between',
     flexDirection: 'row',
   },
 
@@ -263,6 +262,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     textAlign: 'center',
   },
-});
+})
 
 export default FormikPostUploader;

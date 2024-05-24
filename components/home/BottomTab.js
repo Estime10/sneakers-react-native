@@ -81,7 +81,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     bottom: '3%',
-    zIndex: 999,
     backgroundColor: '#000000',
   },
 
@@ -101,5 +100,5 @@ const styles = StyleSheet.create({
     borderWidth: activeTab === 'Profile' ? 2 : 0,
     borderColor: '#CB3A3A',
   }),
-});
+})
 export default BottomTab;

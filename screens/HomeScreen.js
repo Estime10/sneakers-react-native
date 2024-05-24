@@ -12,6 +12,7 @@ import {
   orderBy,
   query,
 } from 'firebase/firestore';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 
 const HomeScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([])
@@ -86,15 +87,17 @@ const HomeScreen = ({ navigation }) => {
       <StatusBar barStyle='light-content' />
       <Header navigation={navigation} />
       <Stories />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {posts.map((post, index) => (
-          <Post
-            post={post}
-            key={index}
-          />
-        ))}
-      </ScrollView>
-      <BottomTab icons={BottomTabIcons} />
+      <BottomSheetModalProvider>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {posts.map((post, index) => (
+            <Post
+              post={post}
+              key={index}
+            />
+          ))}
+        </ScrollView>
+        <BottomTab icons={BottomTabIcons} />
+      </BottomSheetModalProvider>
     </SafeAreaView>
   )
 };

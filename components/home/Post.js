@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Divider } from 'react-native-elements'
 import {
   arrayRemove,
@@ -17,6 +17,7 @@ import {
   updateDoc,
 } from 'firebase/firestore'
 import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
+import CommentBottomSheet from './CommentBottomSheet'
 
 const AVATAR =
   '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png'
@@ -33,6 +34,7 @@ const SAVE =
 
 const Post = ({ post }) => {
   const [currentPost, setCurrentPost] = useState(post)
+  const commentSheetRef = useRef(null)
   useEffect(() => {
     const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
 
@@ -81,6 +83,10 @@ const Post = ({ post }) => {
     }
   }
 
+  const handleComment = () => {
+    commentSheetRef.current?.present()
+  }
+
   return (
     <View style={{ marginBottom: 50 }}>
       <Divider
@@ -93,11 +99,16 @@ const Post = ({ post }) => {
         <PostFooter
           post={post}
           handleLike={handleLike}
+          handleComment={handleComment}
         />
         <Likes post={post} />
         <Caption post={post} />
         <CommentSection post={post} />
-        <Comments post={post} />
+        <CommentBottomSheet
+          ref={commentSheetRef}
+          post={post}
+        />
+        {/* <Comments post={post} /> */}
       </View>
     </View>
   )
@@ -145,7 +156,7 @@ const PostImage = ({ post }) => (
   </View>
 )
 
-const PostFooter = ({ handleLike, post }) => (
+const PostFooter = ({ handleLike, handleComment, post }) => (
   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
     <View style={styles.leftFooterIconContainer}>
       <TouchableOpacity onPress={() => handleLike(post)}>
@@ -158,12 +169,13 @@ const PostFooter = ({ handleLike, post }) => (
           }}
         />
       </TouchableOpacity>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={handleComment}>
         <Image
           style={styles.footerIcon}
           source={{ uri: COMMENT }}
         />
       </TouchableOpacity>
+
       <TouchableOpacity>
         <Image
           style={styles.footerIcon}
@@ -204,33 +216,34 @@ const Caption = ({ post }) => (
       <Text> {post.caption}</Text>
     </Text>
   </View>
-);
+)
 
 const CommentSection = ({ post }) => (
   <View style={{ marginTop: 5 }}>
-    {!!post.comments.length && (
-      <Text style={{ color: '#626567', marginTop: 5 }}>
-        View {post.comments.length > 1 ? 'all' : ''} {post.comments.length}{' '}
-        {post.comments.length > 1 ? 'comments' : 'comment'}
-      </Text>
-    )}
+    {/* {!!post.comments.length && ( */}
+    <Text style={{ color: '#626567', marginTop: 5 }}>
+      View
+      {/* {post.comments.length > 1 ? 'all' : ''} {post.comments.length}{' '} */}
+      {/* {post.comments.length > 1 ? 'comments' : 'comment'} */}
+    </Text>
+    {/* )} */}
   </View>
-);
+)
 
-const Comments = ({ post }) => (
-  <>
-    {post.comments.map((comment, index) => (
-      <View
-        key={index}
-        style={{ flexDirection: 'row', marginTop: 5 }}>
-        <Text style={{ color: 'white' }}>
-          <Text style={{ fontWeight: '800' }}>{comment.user}</Text>{' '}
-          <Text>{comment.comment}</Text>
-        </Text>
-      </View>
-    ))}
-  </>
-);
+// const Comments = ({ post }) => (
+//   <>
+//     {post.comments.map((comment, index) => (
+//       <View
+//         key={index}
+//         style={{ flexDirection: 'row', marginTop: 5 }}>
+//         <Text style={{ color: 'white' }}>
+//           <Text style={{ fontWeight: '800' }}>{comment.user}</Text>{' '}
+//           <Text>{comment.comment}</Text>
+//         </Text>
+//       </View>
+//     ))}
+//   </>
+// );
 
 const styles = StyleSheet.create({
   story: {
