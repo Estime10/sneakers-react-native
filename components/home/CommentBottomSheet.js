@@ -23,7 +23,7 @@ import {
   BottomSheetTextInput,
   BottomSheetFooter,
 } from '@gorhom/bottom-sheet'
-import { Divider, Button as RNButton } from 'react-native-elements'
+import { Divider } from 'react-native-elements'
 import {
   addDoc,
   arrayRemove,
@@ -31,6 +31,7 @@ import {
   collection,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
@@ -49,12 +50,16 @@ const BottomModal = forwardRef((props, ref) => {
   const [commentsList, setCommentsList] = useState([])
   const [replyInputVisibility, setReplyInputVisibility] = useState({})
   const inputRef = useRef('')
+  const replyInputRefs = useRef({})
 
-  const toggleReplyInput = commentId => {
-    setReplyInputVisibility(prevState => ({
-      ...prevState,
-      [commentId]: !prevState[commentId],
-    }))
+  const toggleReplyInput = (commentId, userOrEmail) => {
+    setReplyInputVisibility(prevState => {
+      const isVisible = !prevState[commentId]?.visible
+      return {
+        ...prevState,
+        [commentId]: { visible: isVisible, userOrEmail: userOrEmail },
+      }
+    })
   }
 
   useEffect(() => {
@@ -65,52 +70,71 @@ const BottomModal = forwardRef((props, ref) => {
     const fetchPostComments = async () => {
       const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
       const commentsCollectionRef = collection(postRef, 'comments')
-
-      const unsubscribe = onSnapshot(
-        query(commentsCollectionRef, orderBy('createdAt', 'desc')),
-        snapshot => {
-          const commentsData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-          setCommentsList(commentsData)
-        }
+      const querySnapshot = await getDocs(
+        query(commentsCollectionRef, orderBy('createdAt', 'desc'))
       )
-      return () => unsubscribe()
+
+      const commentsWithReplies = await Promise.all(
+        querySnapshot.docs.map(async doc => {
+          const commentData = { id: doc.id, ...doc.data() }
+          const replies = await fetchReplies(doc.id)
+          return { ...commentData, replies }
+        })
+      )
+
+      setCommentsList(commentsWithReplies)
     }
 
     fetchPostComments()
   }, [post.id, post.userId])
 
+  const fetchReplies = async commentId => {
+    const repliesRef = collection(
+      firestoreDB,
+      'users',
+      post.userId,
+      'posts',
+      post.id,
+      'comments',
+      commentId,
+      'replies'
+    )
+    const snapshot = await getDocs(query(repliesRef, orderBy('createdAt')))
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  }
+
   const handleAddComment = async comment => {
     try {
       const currentUser = firebaseAuth.currentUser
-      const userId = currentUser.email
+      if (!currentUser) {
+        throw new Error('Aucun utilisateur connecté')
+      }
       if (!inputRef.current) {
         throw new Error('Input reference is not defined')
       }
 
-      const userDoc = await getDoc(doc(firestoreDB, 'users', userId))
-      if (!userDoc.exists()) {
-        throw new Error('User document does not exist')
-      }
-
       await addDoc(
-        collection(firestoreDB, 'users', userId, 'posts', post.id, 'comments'),
+        collection(
+          firestoreDB,
+          'users',
+          post.userId,
+          'posts',
+          post.id,
+          'comments'
+        ),
         {
-          user: userId,
-          avatar: currentUser.photoURL,
+          avatar: currentUser.photoURL || icons.TAB_AVATAR,
           owner_uid: currentUser.uid,
           owner_email: currentUser.email,
           text: comment,
           createdAt: serverTimestamp(),
-          comment_likeed_by_user: [],
+          comment_liked_by_user: [],
         }
       )
       setComments('')
     } catch (error) {
-      Alert.alert(error.message)
-      console.error('Error uploading post:', error)
+      Alert.alert('Erreur', error.message)
+      console.error("Erreur lors de l'ajout du commentaire : ", error)
     }
   }
 
@@ -159,6 +183,38 @@ const BottomModal = forwardRef((props, ref) => {
     } catch (error) {
       Alert.alert('Erreur lors de la mise à jour du statut de like')
       console.error('Erreur lors de la mise à jour du statut de like : ', error)
+    }
+  }
+
+  const handleReplyComment = async (commentId, replyText) => {
+    const currentUser = firebaseAuth.currentUser
+    if (!currentUser) {
+      throw new Error('Aucun utilisateur connecté')
+    }
+
+    const commentRef = doc(
+      firestoreDB,
+      'users',
+      post.userId,
+      'posts',
+      post.id,
+      'comments',
+      commentId
+    )
+
+    const repliesRef = collection(commentRef, 'replies')
+
+    try {
+      await addDoc(repliesRef, {
+        avatar: currentUser.photoURL || icons.TAB_AVATAR,
+        text: replyText,
+        createdAt: serverTimestamp(),
+        owner_uid: currentUser.uid,
+        owner_email: currentUser.email,
+      })
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de la réponse : ", error)
+      Alert.alert('Erreur', error.message)
     }
   }
 
@@ -222,7 +278,10 @@ const BottomModal = forwardRef((props, ref) => {
               <TouchableOpacity
                 style={styles.sendButton}
                 onPress={handleSubmit}>
-                <Text style={styles.sendButtonText}>Envoyer</Text>
+                <Image
+                  style={styles.sendButtonText}
+                  source={icons.SEND}
+                />
               </TouchableOpacity>
             </View>
           </BottomSheetFooter>
@@ -281,7 +340,6 @@ const BottomModal = forwardRef((props, ref) => {
                         <View
                           style={{
                             flexDirection: 'row',
-                            alignItems: 'flex-end',
                           }}>
                           <Image
                             source={
@@ -289,24 +347,27 @@ const BottomModal = forwardRef((props, ref) => {
                             }
                             style={styles.avatar}
                           />
-                          <Text
-                            style={{
-                              color: '#ffff',
-                              paddingRight: 50,
-                              fontSize: 10,
-                              fontWeight: 'bold',
-                            }}>
-                            {comment.username ? comment.username : comment.user}
-                          </Text>
-                          <Text
-                            style={{
-                              color: '#ffff',
-                              fontSize: 10,
-                            }}>
-                            {comment.createdAt
-                              ? moment(comment.createdAt.toDate()).fromNow()
-                              : 'N/A'}
-                          </Text>
+                          <View>
+                            <Text
+                              style={{
+                                color: '#ffff',
+                                fontSize: 10,
+                                fontWeight: 'bold',
+                              }}>
+                              {comment.username || comment.owner_email}
+                            </Text>
+                            <Text
+                              style={{
+                                color: '#ffff',
+                                fontSize: 10,
+                                paddingTop: 4,
+                                textAlign: 'right',
+                              }}>
+                              {comment.createdAt
+                                ? moment(comment.createdAt.toDate()).fromNow()
+                                : 'N/A'}
+                            </Text>
+                          </View>
                         </View>
                       </View>
                       <View>
@@ -319,7 +380,6 @@ const BottomModal = forwardRef((props, ref) => {
                             style={{
                               color: '#ffff',
                               fontSize: 12,
-
                               width: '90%',
                               marginTop: 14,
                             }}>
@@ -362,36 +422,121 @@ const BottomModal = forwardRef((props, ref) => {
                         </View>
                         <View style={{ marginBottom: 10 }}>
                           <TouchableOpacity
-                            onPress={() => toggleReplyInput(comment.id)}>
+                            onPress={() =>
+                              toggleReplyInput(
+                                comment.id,
+                                comment.username || comment.owner_email
+                              )
+                            }>
                             <Text
                               style={{
-                                color: '#ffff',
+                                color: '#424242',
                                 fontSize: 12,
-                                marginTop: 0,
+                                marginTop: 8,
+                                marginBottom: 5,
                               }}>
-                              reply
+                              responde
                             </Text>
                           </TouchableOpacity>
-                          {replyInputVisibility[comment.id] && (
+                          {replyInputVisibility[comment.id]?.visible && (
                             <View
                               style={{
                                 marginLeft: 25,
                                 marginTop: 5,
-                                width: '50%',
+                                width: '90%',
+                                borderBottomWidth: 0.3,
+                                borderBottomColor: '#979A9A',
                               }}>
-                              <TextInput
-                                style={[
-                                  styles.replyTextInput,
-                                  { maxHeight: 50 },
-                                ]}
-                                placeholder='Reply'
-                                placeholderTextColor={'#979A9A'}
-                                multiline={true}
-                                numberOfLines={2}
-                                scrollEnabled={true}
-                              />
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                }}>
+                                <TextInput
+                                  style={styles.replyTextInput}
+                                  ref={el =>
+                                    (replyInputRefs.current[comment.id] = el)
+                                  }
+                                  onChangeText={text => {
+                                    if (replyInputRefs.current[comment.id]) {
+                                      replyInputRefs.current[comment.id].value =
+                                        text
+                                    }
+                                  }}
+                                  placeholder={`Répondre à ${
+                                    replyInputVisibility[comment.id].userOrEmail
+                                  }`}
+                                  placeholderTextColor={'#979A9A'}
+                                  multiline={true}
+                                  numberOfLines={2}
+                                  scrollEnabled={true}
+                                />
+                                <TouchableOpacity
+                                  onPress={() => {
+                                    if (
+                                      replyInputRefs.current[comment.id] &&
+                                      replyInputRefs.current[comment.id].value
+                                    ) {
+                                      const replyText =
+                                        replyInputRefs.current[comment.id].value
+                                      handleReplyComment(comment.id, replyText)
+                                    } else {
+                                      console.error(
+                                        'Erreur : Aucune valeur de réponse trouvée.'
+                                      )
+                                    }
+                                  }}>
+                                  <Image
+                                    style={{
+                                      width: 15,
+                                      height: 15,
+                                    }}
+                                    source={icons.SEND}
+                                  />
+                                </TouchableOpacity>
+                              </View>
                             </View>
                           )}
+                          <View>
+                            {comment.replies &&
+                              comment.replies.map((reply, replyIndex) => (
+                                <View
+                                  key={replyIndex}
+                                  style={{
+                                    marginTop: 10,
+                                    marginLeft: 20,
+                                  }}>
+                                  <View
+                                    style={{
+                                      flexDirection: 'row',
+                                      marginBottom: 5,
+                                    }}>
+                                    <Image
+                                      source={reply.avatar || icons.TAB_AVATAR}
+                                      style={styles.avatar}
+                                    />
+                                    <Text
+                                      style={{
+                                        color: '#fff',
+                                        fontSize: 10,
+                                        fontWeight: 'bold',
+                                      }}>
+                                      {reply.username || reply.owner_email}
+                                    </Text>
+                                  </View>
+                                  <Text
+                                    key={replyIndex}
+                                    style={{
+                                      color: '#fff',
+                                      fontSize: 10,
+                                      marginLeft: 20,
+                                    }}>
+                                    {reply.text}
+                                  </Text>
+                                </View>
+                              ))}
+                          </View>
                         </View>
                       </View>
                     </View>
@@ -476,14 +621,19 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     position: 'absolute',
-    right: 25,
-    bottom: -50,
+    right: 5,
+    bottom: -75,
     padding: 10,
   },
   sendButtonText: {
+    width: 25,
+    height: 25,
+  },
+  sendButtonReplyText: {
     color: '#ffffff',
     fontWeight: 'bold',
     textTransform: 'uppercase',
+    fontSize: 10,
   },
   footerText: {
     textAlign: 'center',
@@ -492,11 +642,10 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   replyTextInput: {
+    fontSize: 10,
+    height: 35,
+    width: '100%',
     color: '#ffffff',
-    fontSize: 12,
-    textAlign: 'justify',
-    marginTop: 0,
-    marginBottom: 10,
   },
 })
 

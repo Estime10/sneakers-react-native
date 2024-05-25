@@ -18,48 +18,47 @@ import {
 } from '../../config/firebase.config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-
-const AVATAR =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/avatar_dark.png';
+import { icons } from 'react-native-elements'
 
 const LoginForm = ({ navigation }) => {
   const LoginFormSchema = Yup.object().shape({
     email: Yup.string()
       .email()
       .required('Valid Email', 'Invalid Email', value => {
-        return Validator.validate(value);
+        return Validator.validate(value)
       }),
     password: Yup.string()
       .required()
       .min(6, 'Password must be at least 6 characters'),
-  });
+  })
 
   const onLogin = async (email, password) => {
     try {
       await signInWithEmailAndPassword(firebaseAuth, email, password).then(
         userCredential => {
-          const user = userCredential.user;
-          const userId = user.email;
+          const user = userCredential.user
+
+          const userId = user.email
           setDoc(doc(firestoreDB, 'users', userId), {
             owner_uid: userId,
             email: email,
-            avatar: AVATAR,
+            avatar: icons.TAB_AVATAR || user.photoURL,
           }).then(() => {
-            navigation.navigate('HomeScreen');
-          });
+            navigation.navigate('HomeScreen')
+          })
         }
-      );
+      )
     } catch (error) {
-      Alert.alert(error.message);
+      Alert.alert(error.message)
     }
-  };
+  }
 
   return (
     <View style={styles.Wrapper}>
       <Formik
         initialValues={{ email: '', password: '' }}
         onSubmit={values => {
-          onLogin(values.email, values.password);
+          onLogin(values.email, values.password)
         }}
         validationSchema={LoginFormSchema}
         validateOnMount={true}>
@@ -137,8 +136,8 @@ const LoginForm = ({ navigation }) => {
         )}
       </Formik>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   Wrapper: {

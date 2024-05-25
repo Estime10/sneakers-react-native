@@ -19,6 +19,7 @@ import TAB_PLUS_ACTIVE from '../assets/icons/tabPlus-active.png'
 import TAB_AVATAR from '../assets/icons/tabAvatar.png'
 import TAB_AVATAR_ACTIVE from '../assets/icons/tabAvatar-active.png'
 import LOGO_NAME from '../assets/images/name.png'
+import SEND from '../assets/icons/sendArrow.png'
 
 export default {
   BOOKMARK,
@@ -42,4 +43,5 @@ export default {
   TAB_AVATAR,
   TAB_AVATAR_ACTIVE,
   LOGO_NAME,
+  SEND,
 }
