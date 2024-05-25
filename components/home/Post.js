@@ -96,7 +96,6 @@ const Post = ({ post }) => {
           ref={commentSheetRef}
           post={post}
         />
-        {/* <Comments post={post} /> */}
       </View>
     </View>
   )
@@ -218,20 +217,6 @@ const CommentSection = ({ post }) => (
   </View>
 )
 
-// const Comments = ({ post }) => (
-//   <>
-//     {post.comments.map((comment, index) => (
-//       <View
-//         key={index}
-//         style={{ flexDirection: 'row', marginTop: 5 }}>
-//         <Text style={{ color: 'white' }}>
-//           <Text style={{ fontWeight: '800' }}>{comment.user}</Text>{' '}
-//           <Text>{comment.comment}</Text>
-//         </Text>
-//       </View>
-//     ))}
-//   </>
-// );
 
 const styles = StyleSheet.create({
   story: {

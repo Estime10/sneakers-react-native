@@ -59,7 +59,6 @@ const FormikPostUploader = ({ navigation }) => {
         caption: caption,
         createdAt: serverTimestamp(),
         likes_by_users: [],
-        comments: [],
       })
 
       navigation.goBack()

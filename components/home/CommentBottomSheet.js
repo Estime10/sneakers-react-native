@@ -26,6 +26,8 @@ import {
 import { Divider, Button as RNButton } from 'react-native-elements'
 import {
   addDoc,
+  arrayRemove,
+  arrayUnion,
   collection,
   doc,
   getDoc,
@@ -33,6 +35,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  updateDoc,
 } from 'firebase/firestore'
 import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
 import { icons } from '../../constants'
@@ -44,7 +47,16 @@ const BottomModal = forwardRef((props, ref) => {
   const { post } = props
   const [comments, setComments] = useState('')
   const [commentsList, setCommentsList] = useState([])
+  const [replyInputVisibility, setReplyInputVisibility] = useState({})
   const inputRef = useRef('')
+
+  const toggleReplyInput = commentId => {
+    setReplyInputVisibility(prevState => ({
+      ...prevState,
+      [commentId]: !prevState[commentId],
+    }))
+  }
+
   useEffect(() => {
     inputRef.current = inputRef.current || {}
   }, [])
@@ -57,7 +69,10 @@ const BottomModal = forwardRef((props, ref) => {
       const unsubscribe = onSnapshot(
         query(commentsCollectionRef, orderBy('createdAt', 'desc')),
         snapshot => {
-          const commentsData = snapshot.docs.map(doc => doc.data())
+          const commentsData = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
           setCommentsList(commentsData)
         }
       )
@@ -67,7 +82,7 @@ const BottomModal = forwardRef((props, ref) => {
     fetchPostComments()
   }, [post.id, post.userId])
 
-  const AddAComment = async comment => {
+  const handleAddComment = async comment => {
     try {
       const currentUser = firebaseAuth.currentUser
       const userId = currentUser.email
@@ -89,6 +104,7 @@ const BottomModal = forwardRef((props, ref) => {
           owner_email: currentUser.email,
           text: comment,
           createdAt: serverTimestamp(),
+          comment_likeed_by_user: [],
         }
       )
       setComments('')
@@ -98,11 +114,59 @@ const BottomModal = forwardRef((props, ref) => {
     }
   }
 
+  const handleLikeComment = async commentId => {
+    const currentUserEmail = firebaseAuth.currentUser.email
+    const commentRef = doc(
+      firestoreDB,
+      'users',
+      post.userId,
+      'posts',
+      post.id,
+      'comments',
+      commentId
+    )
+
+    try {
+      const docSnap = await getDoc(commentRef)
+
+      if (!docSnap.exists()) {
+        Alert.alert("Erreur : Le commentaire n'existe pas")
+        return
+      }
+
+      const commentLikes = docSnap.data().liked_by_user || []
+      const currentLikeStatus = !commentLikes.includes(currentUserEmail)
+
+      await updateDoc(commentRef, {
+        liked_by_user: currentLikeStatus
+          ? arrayUnion(currentUserEmail)
+          : arrayRemove(currentUserEmail),
+      })
+
+      // Mise à jour de l'état local du commentaire avec les nouveaux likes
+      const updatedCommentsList = commentsList.map(comment => {
+        if (comment.id === commentId) {
+          return {
+            ...comment,
+            liked_by_user: currentLikeStatus
+              ? [...commentLikes, currentUserEmail]
+              : commentLikes.filter(email => email !== currentUserEmail),
+          }
+        }
+        return comment
+      })
+      setCommentsList(updatedCommentsList)
+    } catch (error) {
+      Alert.alert('Erreur lors de la mise à jour du statut de like')
+      console.error('Erreur lors de la mise à jour du statut de like : ', error)
+    }
+  }
+
   const uploadPostSchema = Yup.object().shape({
     caption: Yup.string().max(2200, 'Caption has reached the character limit'),
   })
 
-  const snapPoints = useMemo(() => ['100%'], [])
+  const snapPoints = useMemo(() => ['90%'], [])
 
   const renderBackdrop = useCallback(
     () => (
@@ -122,7 +186,7 @@ const BottomModal = forwardRef((props, ref) => {
       <Formik
         initialValues={{ comment: '' }}
         onSubmit={(values, { resetForm }) => {
-          AddAComment(values.comment)
+          handleAddComment(values.comment)
             .then(() => {
               resetForm()
             })
@@ -195,111 +259,144 @@ const BottomModal = forwardRef((props, ref) => {
           <View style={styles.scrollViewContainer}>
             <ScrollView
               vertical
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.commentContainer}>
-              {Array.isArray(commentsList) &&
-                commentsList.map((comment, index) => (
-                  <View key={index}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'flex-end',
-                        }}>
-                        <Image
-                          source={
-                            comment.avatar ? comment.avatar : icons.TAB_AVATAR
-                          }
-                          style={styles.avatar}
-                        />
-                        <Text
-                          style={{
-                            color: '#ffff',
-                            paddingRight: 50,
-                            fontSize: 10,
-                            fontWeight: 'bold',
-                          }}>
-                          {comment.username ? comment.username : comment.user}
-                        </Text>
-                        <Text
-                          style={{
-                            color: '#ffff',
-                            fontSize: 10,
-                          }}>
-                          {comment.createdAt
-                            ? moment(comment.createdAt.toDate()).fromNow()
-                            : 'N/A'}
-                        </Text>
-                      </View>
-                    </View>
-                    <View>
+              showsHorizontalScrollIndicator={true}
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: 'space-between',
+              }}>
+              <View
+                style={{
+                  paddingBottom: 60,
+                  paddingTop: 10,
+                }}>
+                {Array.isArray(commentsList) &&
+                  commentsList.map((comment, index) => (
+                    <View key={index}>
                       <View
                         style={{
                           flexDirection: 'row',
                           justifyContent: 'space-between',
+                          alignItems: 'center',
                         }}>
-                        <Text
+                        <View
                           style={{
-                            color: '#ffff',
-                            fontSize: 12,
-
-                            width: '90%',
-                            marginTop: 8,
+                            flexDirection: 'row',
+                            alignItems: 'flex-end',
                           }}>
-                          {comment.text}
-                        </Text>
-                        <View style={{ alignItems: 'center', marginTop: 10 }}>
-                          <TouchableOpacity>
-                            <Image
-                              source={icons.LIKE}
-                              style={{ width: 15, height: 15 }}
-                            />
-                          </TouchableOpacity>
+                          <Image
+                            source={
+                              comment.avatar ? comment.avatar : icons.TAB_AVATAR
+                            }
+                            style={styles.avatar}
+                          />
+                          <Text
+                            style={{
+                              color: '#ffff',
+                              paddingRight: 50,
+                              fontSize: 10,
+                              fontWeight: 'bold',
+                            }}>
+                            {comment.username ? comment.username : comment.user}
+                          </Text>
                           <Text
                             style={{
                               color: '#ffff',
                               fontSize: 10,
-                              marginTop: 2,
                             }}>
-                            {comment.liked ? comment.liked : 0}
+                            {comment.createdAt
+                              ? moment(comment.createdAt.toDate()).fromNow()
+                              : 'N/A'}
                           </Text>
                         </View>
                       </View>
                       <View>
-                        <TouchableOpacity>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                          }}>
                           <Text
                             style={{
                               color: '#ffff',
                               fontSize: 12,
-                              marginTop: 0,
+
+                              width: '90%',
+                              marginTop: 14,
                             }}>
-                            reply
+                            {comment.text}
                           </Text>
-                        </TouchableOpacity>
-                        <View
-                          style={{
-                            marginLeft: 25,
-                            marginTop: 5,
-                            width: '50%',
-                          }}>
-                          <TextInput
-                            style={[styles.replyTextInput, { maxHeight: 50 }]}
-                            placeholder='Reply'
-                            placeholderTextColor={'#979A9A'}
-                            multiline={true}
-                            numberOfLines={2}
-                            scrollEnabled={true}
-                          />
+                          <View style={{ alignItems: 'center', marginTop: 10 }}>
+                            <View style={{ flexDirection: 'row' }}>
+                              <TouchableOpacity
+                                onPress={() => {
+                                  handleLikeComment(comment.id)
+                                }}>
+                                <Image
+                                  style={{
+                                    width: 15,
+                                    height: 15,
+                                    marginRight: 10,
+                                  }}
+                                  source={
+                                    comment.liked_by_user &&
+                                    comment.liked_by_user.includes(
+                                      firebaseAuth.currentUser.email
+                                    )
+                                      ? icons.LIKED
+                                      : icons.LIKE
+                                  }
+                                />
+                              </TouchableOpacity>
+                              <Text
+                                style={{
+                                  color: '#ffff',
+                                  fontSize: 10,
+                                  marginTop: 2,
+                                }}>
+                                {(
+                                  comment.liked_by_user?.length || 0
+                                ).toLocaleString('en')}{' '}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                        <View style={{ marginBottom: 10 }}>
+                          <TouchableOpacity
+                            onPress={() => toggleReplyInput(comment.id)}>
+                            <Text
+                              style={{
+                                color: '#ffff',
+                                fontSize: 12,
+                                marginTop: 0,
+                              }}>
+                              reply
+                            </Text>
+                          </TouchableOpacity>
+                          {replyInputVisibility[comment.id] && (
+                            <View
+                              style={{
+                                marginLeft: 25,
+                                marginTop: 5,
+                                width: '50%',
+                              }}>
+                              <TextInput
+                                style={[
+                                  styles.replyTextInput,
+                                  { maxHeight: 50 },
+                                ]}
+                                placeholder='Reply'
+                                placeholderTextColor={'#979A9A'}
+                                multiline={true}
+                                numberOfLines={2}
+                                scrollEnabled={true}
+                              />
+                            </View>
+                          )}
                         </View>
                       </View>
                     </View>
-                  </View>
-                ))}
+                  ))}
+              </View>
             </ScrollView>
           </View>
         </BottomSheetModal>
@@ -329,9 +426,11 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   scrollViewContainer: {
+    marginTop: 10,
     flexDirection: 'row',
-    margin: 10,
-    height: '100%',
+    height: 600,
+
+    width: '100%',
   },
   commentContainer: {
     padding: 10,
