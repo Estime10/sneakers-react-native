@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     paddingLeft: 10,
     paddingRight: 10,
+    marginTop: 15,
   },
 
   iconContainer: {
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
 
   logo: {
     width: 250,
-    height: 85,
+    height: 50,
     marginLeft: -50,
     marginTop: 10,
     resizeMode: 'cover',

@@ -11,9 +11,12 @@ import { Divider } from 'react-native-elements'
 import {
   arrayRemove,
   arrayUnion,
+  collection,
   doc,
   getDoc,
   onSnapshot,
+  orderBy,
+  query,
   updateDoc,
 } from 'firebase/firestore'
 import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
@@ -22,6 +25,7 @@ import { icons } from '../../constants'
 
 const Post = ({ post }) => {
   const [currentPost, setCurrentPost] = useState(post)
+  const [commentCount, setCommentCount] = useState(0)
   const commentSheetRef = useRef(null)
   useEffect(() => {
     const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
@@ -36,6 +40,25 @@ const Post = ({ post }) => {
 
     return () => unsubscribe()
   }, [post.userId, post.id])
+
+  useEffect(() => {
+    const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
+    const commentsCollectionRef = collection(postRef, 'comments')
+
+    const unsubscribeComments = onSnapshot(
+      commentsCollectionRef,
+      snapshot => {
+        setCommentCount(snapshot.size)
+      },
+      error => {
+        console.error('Failed to fetch comments:', error)
+      }
+    )
+
+    return () => {
+      unsubscribeComments()
+    }
+  }, [post.id, post.userId])
 
   const handleLike = async () => {
     const currentUserEmail = firebaseAuth.currentUser.email
@@ -91,7 +114,11 @@ const Post = ({ post }) => {
         />
         <Likes post={post} />
         <Caption post={post} />
-        <CommentSection post={post} />
+        <CommentSection
+          post={post}
+          commentCount={commentCount}
+          handleComment={handleComment}
+        />
         <CommentBottomSheet
           ref={commentSheetRef}
           post={post}
@@ -125,7 +152,14 @@ const PostHeader = ({ post }) => (
       </Text>
     </View>
     <TouchableOpacity>
-      <Text style={{ color: 'white', fontWeight: 900 }}>...</Text>
+      <Text
+        style={{
+          color: 'white',
+          fontWeight: 900,
+          transform: [{ rotate: '90deg' }],
+        }}>
+        ...
+      </Text>
     </TouchableOpacity>
   </View>
 )
@@ -205,15 +239,17 @@ const Caption = ({ post }) => (
   </View>
 )
 
-const CommentSection = ({ post }) => (
+const CommentSection = ({ commentCount, handleComment }) => (
   <View style={{ marginTop: 5 }}>
-    {/* {!!post.comments.length && ( */}
-    <Text style={{ color: '#626567', marginTop: 5 }}>
-      View
-      {/* {post.comments.length > 1 ? 'all' : ''} {post.comments.length}{' '} */}
-      {/* {post.comments.length > 1 ? 'comments' : 'comment'} */}
-    </Text>
-    {/* )} */}
+    {commentCount > 0 ? (
+      <TouchableOpacity onPress={handleComment}>
+        <Text style={{ color: '#626567', marginTop: 5 }}>
+          View {commentCount} {commentCount > 1 ? 'comments' : 'comment'}
+        </Text>
+      </TouchableOpacity>
+    ) : (
+      ''
+    )}
   </View>
 )
 

@@ -42,7 +42,7 @@ const LoginForm = ({ navigation }) => {
           setDoc(doc(firestoreDB, 'users', userId), {
             owner_uid: userId,
             email: email,
-            avatar: icons.TAB_AVATAR || user.photoURL,
+            avatar: user.photoURL,
           }).then(() => {
             navigation.navigate('HomeScreen')
           })

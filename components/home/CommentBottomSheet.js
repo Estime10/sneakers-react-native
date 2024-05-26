@@ -49,12 +49,14 @@ const BottomModal = forwardRef((props, ref) => {
   const [comments, setComments] = useState('')
   const [commentsList, setCommentsList] = useState([])
   const [replyInputVisibility, setReplyInputVisibility] = useState({})
+  const [replyText, setReplyText] = useState('')
+  const [showAllReplies, setShowAllReplies] = useState({})
   const inputRef = useRef('')
   const replyInputRefs = useRef({})
 
   const toggleReplyInput = (commentId, userOrEmail) => {
     setReplyInputVisibility(prevState => {
-      const isVisible = !prevState[commentId]?.visible
+      const isVisible = userOrEmail ? !prevState[commentId]?.visible : false
       return {
         ...prevState,
         [commentId]: { visible: isVisible, userOrEmail: userOrEmail },
@@ -62,33 +64,52 @@ const BottomModal = forwardRef((props, ref) => {
     })
   }
 
+  const toggleRepliesVisibility = commentId => {
+    setShowAllReplies(prevState => ({
+      ...prevState,
+      [commentId]: !prevState[commentId],
+    }))
+  }
+
   useEffect(() => {
     inputRef.current = inputRef.current || {}
   }, [])
 
   useEffect(() => {
-    const fetchPostComments = async () => {
-      const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
-      const commentsCollectionRef = collection(postRef, 'comments')
-      const querySnapshot = await getDocs(
-        query(commentsCollectionRef, orderBy('createdAt', 'desc'))
-      )
+    const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
+    const commentsCollectionRef = collection(postRef, 'comments')
 
-      const commentsWithReplies = await Promise.all(
-        querySnapshot.docs.map(async doc => {
-          const commentData = { id: doc.id, ...doc.data() }
-          const replies = await fetchReplies(doc.id)
-          return { ...commentData, replies }
+    const unsubscribeComments = onSnapshot(
+      query(commentsCollectionRef, orderBy('createdAt', 'desc')),
+      snapshot => {
+        const commentsData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          replies: [],
+        }))
+
+        setCommentsList(commentsData)
+
+        commentsData.forEach(comment => {
+          fetchReplies(comment.id, replies => {
+            setCommentsList(currentComments =>
+              currentComments.map(c =>
+                c.id === comment.id ? { ...c, replies } : c
+              )
+            )
+          })
         })
-      )
+      }
+    )
 
-      setCommentsList(commentsWithReplies)
+    return () => {
+      unsubscribeComments()
     }
-
-    fetchPostComments()
   }, [post.id, post.userId])
 
-  const fetchReplies = async commentId => {
+  const fetchReplies = (commentId, setReplies) => {
+    if (!commentId.trim()) return
+
     const repliesRef = collection(
       firestoreDB,
       'users',
@@ -99,8 +120,19 @@ const BottomModal = forwardRef((props, ref) => {
       commentId,
       'replies'
     )
-    const snapshot = await getDocs(query(repliesRef, orderBy('createdAt')))
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+
+    const unsubscribe = onSnapshot(
+      query(repliesRef, orderBy('createdAt', 'desc')),
+      querySnapshot => {
+        const replies = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        setReplies(replies)
+      }
+    )
+
+    return unsubscribe
   }
 
   const handleAddComment = async comment => {
@@ -203,7 +235,6 @@ const BottomModal = forwardRef((props, ref) => {
     )
 
     const repliesRef = collection(commentRef, 'replies')
-
     try {
       await addDoc(repliesRef, {
         avatar: currentUser.photoURL || icons.TAB_AVATAR,
@@ -212,6 +243,8 @@ const BottomModal = forwardRef((props, ref) => {
         owner_uid: currentUser.uid,
         owner_email: currentUser.email,
       })
+      setReplyText('')
+      toggleReplyInput(commentId, '')
     } catch (error) {
       console.error("Erreur lors de l'ajout de la réponse : ", error)
       Alert.alert('Erreur', error.message)
@@ -222,7 +255,7 @@ const BottomModal = forwardRef((props, ref) => {
     caption: Yup.string().max(2200, 'Caption has reached the character limit'),
   })
 
-  const snapPoints = useMemo(() => ['90%'], [])
+  const snapPoints = useMemo(() => ['86%'], [])
 
   const renderBackdrop = useCallback(
     () => (
@@ -275,14 +308,16 @@ const BottomModal = forwardRef((props, ref) => {
                 numberOfLines={4}
                 scrollEnabled={true}
               />
-              <TouchableOpacity
-                style={styles.sendButton}
-                onPress={handleSubmit}>
-                <Image
-                  style={styles.sendButtonText}
-                  source={icons.SEND}
-                />
-              </TouchableOpacity>
+              {values.comment.trim() !== '' && (
+                <TouchableOpacity
+                  style={styles.sendButton}
+                  onPress={handleSubmit}>
+                  <Image
+                    style={styles.sendButtonText}
+                    source={icons.SEND}
+                  />
+                </TouchableOpacity>
+              )}
             </View>
           </BottomSheetFooter>
         )}
@@ -365,7 +400,7 @@ const BottomModal = forwardRef((props, ref) => {
                               }}>
                               {comment.createdAt
                                 ? moment(comment.createdAt.toDate()).fromNow()
-                                : 'N/A'}
+                                : 'Date inconnue'}
                             </Text>
                           </View>
                         </View>
@@ -432,7 +467,7 @@ const BottomModal = forwardRef((props, ref) => {
                               style={{
                                 color: '#424242',
                                 fontSize: 12,
-                                marginTop: 8,
+                                marginTop: 4,
                                 marginBottom: 5,
                               }}>
                               responde
@@ -442,7 +477,7 @@ const BottomModal = forwardRef((props, ref) => {
                             <View
                               style={{
                                 marginLeft: 25,
-                                marginTop: 5,
+                                margin: 5,
                                 width: '90%',
                                 borderBottomWidth: 0.3,
                                 borderBottomColor: '#979A9A',
@@ -464,7 +499,7 @@ const BottomModal = forwardRef((props, ref) => {
                                         text
                                     }
                                   }}
-                                  placeholder={`Répondre à ${
+                                  placeholder={`Reply @${
                                     replyInputVisibility[comment.id].userOrEmail
                                   }`}
                                   placeholderTextColor={'#979A9A'}
@@ -472,6 +507,7 @@ const BottomModal = forwardRef((props, ref) => {
                                   numberOfLines={2}
                                   scrollEnabled={true}
                                 />
+
                                 <TouchableOpacity
                                   onPress={() => {
                                     if (
@@ -482,8 +518,8 @@ const BottomModal = forwardRef((props, ref) => {
                                         replyInputRefs.current[comment.id].value
                                       handleReplyComment(comment.id, replyText)
                                     } else {
-                                      console.error(
-                                        'Erreur : Aucune valeur de réponse trouvée.'
+                                      Alert.alert(
+                                        'Please enter a reply before sending it.'
                                       )
                                     }
                                   }}>
@@ -500,42 +536,64 @@ const BottomModal = forwardRef((props, ref) => {
                           )}
                           <View>
                             {comment.replies &&
-                              comment.replies.map((reply, replyIndex) => (
-                                <View
-                                  key={replyIndex}
-                                  style={{
-                                    marginTop: 10,
-                                    marginLeft: 20,
-                                  }}>
+                              comment.replies
+                                .slice(
+                                  0,
+                                  showAllReplies[comment.id]
+                                    ? comment.replies.length
+                                    : 1
+                                )
+                                .map((reply, replyIndex) => (
                                   <View
-                                    style={{
-                                      flexDirection: 'row',
-                                      marginBottom: 5,
-                                    }}>
-                                    <Image
-                                      source={reply.avatar || icons.TAB_AVATAR}
-                                      style={styles.avatar}
-                                    />
+                                    key={replyIndex}
+                                    style={{ marginTop: 10, marginLeft: 20 }}>
+                                    <View
+                                      style={{
+                                        flexDirection: 'row',
+                                        marginBottom: 5,
+                                      }}>
+                                      <Image
+                                        source={
+                                          reply.avatar || icons.TAB_AVATAR
+                                        }
+                                        style={styles.avatar}
+                                      />
+                                      <Text
+                                        style={{
+                                          color: '#fff',
+                                          fontSize: 10,
+                                          fontWeight: 'bold',
+                                        }}>
+                                        {reply.username || reply.owner_email}
+                                      </Text>
+                                    </View>
                                     <Text
+                                      key={replyIndex}
                                       style={{
                                         color: '#fff',
                                         fontSize: 10,
-                                        fontWeight: 'bold',
+                                        marginLeft: 20,
                                       }}>
-                                      {reply.username || reply.owner_email}
+                                      {reply.text}
                                     </Text>
                                   </View>
-                                  <Text
-                                    key={replyIndex}
-                                    style={{
-                                      color: '#fff',
-                                      fontSize: 10,
-                                      marginLeft: 20,
-                                    }}>
-                                    {reply.text}
-                                  </Text>
-                                </View>
-                              ))}
+                                ))}
+                            {comment.replies && comment.replies.length > 1 && (
+                              <Text
+                                style={{
+                                  color: '#424242',
+                                  fontSize: 10,
+                                  marginLeft: 20,
+                                  marginTop: 5,
+                                }}
+                                onPress={() =>
+                                  toggleRepliesVisibility(comment.id)
+                                }>
+                                {showAllReplies[comment.id]
+                                  ? 'Hide responses'
+                                  : `View all ${comment.replies.length} responses`}
+                              </Text>
+                            )}
                           </View>
                         </View>
                       </View>
@@ -560,7 +618,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
     flexDirection: 'row',
   },
-  indicator: { backgroundColor: '#808080', marginTop: 35 },
+  indicator: { backgroundColor: '#808080', marginTop: 30 },
   divider: { marginTop: 10, color: '#ffff' },
   title: {
     color: '#ffffff',

@@ -11,7 +11,10 @@ import { USERS } from '../../data/users';
 
 const Stories = () => {
   return (
-    <View style={{ marginBottom: 13 }}>
+    <View
+      style={{
+        marginBottom: 13,
+      }}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}>
@@ -32,7 +35,7 @@ const Stories = () => {
         ))}
       </ScrollView>
     </View>
-  );
+  )
 };
 
 const styles = StyleSheet.create({
