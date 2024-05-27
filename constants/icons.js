@@ -20,6 +20,9 @@ import TAB_AVATAR from '../assets/icons/tabAvatar.png'
 import TAB_AVATAR_ACTIVE from '../assets/icons/tabAvatar-active.png'
 import LOGO_NAME from '../assets/images/name.png'
 import SEND from '../assets/icons/sendArrow.png'
+import ARROBASE from '../assets/icons/arrobase.png'
+import HASH_TAG from '../assets/icons/hashtag.png'
+import TRADE from '../assets/icons/trade.png'
 
 export default {
   BOOKMARK,
@@ -44,4 +47,7 @@ export default {
   TAB_AVATAR_ACTIVE,
   LOGO_NAME,
   SEND,
+  ARROBASE,
+  HASH_TAG,
+  TRADE,
 }

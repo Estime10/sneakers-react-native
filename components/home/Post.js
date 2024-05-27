@@ -15,8 +15,6 @@ import {
   doc,
   getDoc,
   onSnapshot,
-  orderBy,
-  query,
   updateDoc,
 } from 'firebase/firestore'
 import { firebaseAuth, firestoreDB } from '../../config/firebase.config'

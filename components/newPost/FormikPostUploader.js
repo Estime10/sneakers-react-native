@@ -6,17 +6,20 @@ import {
   StyleSheet,
   Button,
   Alert,
-} from 'react-native';
-import React, { useEffect, useState } from 'react';
-import * as Yup from 'yup';
-import { Formik } from 'formik';
-import { Divider, Button as RNButton } from 'react-native-elements';
-import * as ImagePicker from 'expo-image-picker';
+  TouchableOpacity,
+} from 'react-native'
+import React, { useEffect, useState } from 'react'
+import * as Yup from 'yup'
+import { Formik } from 'formik'
+import { Divider, Button as RNButton } from 'react-native-elements'
+import { LinearGradient } from 'expo-linear-gradient'
+
+import * as ImagePicker from 'expo-image-picker'
 import {
   firebaseAuth,
   firestoreDB,
   storage,
-} from '../../config/firebase.config';
+} from '../../config/firebase.config'
 import {
   addDoc,
   collection,
@@ -24,16 +27,16 @@ import {
   getDoc,
   onSnapshot,
   serverTimestamp,
-} from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+} from 'firebase/firestore'
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
 
 const PLACEHOLDER_IMAGE =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/images/logo.png';
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/images/logo.png'
 
 const uploadPostSchema = Yup.object().shape({
   imageUrl: Yup.string().required('an image is required'),
   caption: Yup.string().max(2200, 'Caption has reached the character limit'),
-});
+})
 
 const FormikPostUploader = ({ navigation }) => {
   const [thumbnailUrl, setThumbnailUrl] = useState(PLACEHOLDER_IMAGE)
@@ -174,17 +177,15 @@ const FormikPostUploader = ({ navigation }) => {
             style={{ marginTop: 10 }}
           />
           <View style={styles.buttonContainer}>
-            <RNButton
-              title='UPLOAD IMAGE'
-              onPress={() => selectImage(setFieldValue)}
-              buttonStyle={{
-                backgroundColor: '#D0D3D4',
-              }}
-              titleStyle={{
-                color: 'black',
-                fontWeight: 'bold',
-              }}
-            />
+            <TouchableOpacity onPress={() => selectImage(setFieldValue)}>
+              <LinearGradient
+                colors={['#cdcdcd', '#485563', '#2b5876', '#4e4376']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.gradientButton}>
+                <Text style={styles.buttonText}>UPLOAD IMAGE</Text>
+              </LinearGradient>
+            </TouchableOpacity>
             {isValid && (
               <Button
                 title='clear'
@@ -194,7 +195,7 @@ const FormikPostUploader = ({ navigation }) => {
                   setFieldValue('caption', '')
                 }}
                 titleStyle={{
-                  color: 'black',
+                  color: '#000',
                   fontWeight: 'bold',
                 }}
               />
@@ -204,18 +205,21 @@ const FormikPostUploader = ({ navigation }) => {
             <Text style={styles.TextError}>{errors.imageUrl}</Text>
           )}
           <View style={styles.buttonContainer}>
-            <RNButton
+            <TouchableOpacity
               onPress={handleSubmit}
-              title='SHARE'
-              disabled={!isValid}
-              buttonStyle={{
-                backgroundColor: isValid ? '#D0D3D4' : 'gray',
-              }}
-              titleStyle={{
-                color: 'black',
-                fontWeight: 'bold',
-              }}
-            />
+              disabled={!isValid}>
+              <LinearGradient
+                colors={
+                  isValid
+                    ? ['#cdcdcd', '#485563', '#2b5876', '#4e4376']
+                    : ['#4e4376', '#2b5876', '#485563', '#cdcdcd']
+                }
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[styles.gradientButton, { opacity: isValid ? 1 : 0.5 }]}>
+                <Text style={styles.buttonText}>SHARE</Text>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
         </>
       )}
@@ -260,6 +264,20 @@ const styles = StyleSheet.create({
     color: '#CB3A3A',
     textTransform: 'uppercase',
     textAlign: 'center',
+  },
+  gradientButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  buttonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 15,
+    textTransform: 'uppercase',
   },
 })
 

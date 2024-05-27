@@ -18,12 +18,12 @@ const Header = ({ navigation }) => {
       </TouchableOpacity>
 
       <View style={styles.iconContainer}>
-        <TouchableOpacity onPress={() => navigation.push('NewPostScreen')}>
+        {/* <TouchableOpacity onPress={() => navigation.push('NewPostScreen')}>
           <Image
             source={icons.PLUS_HEADER}
             style={styles.icon}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TouchableOpacity>
           <Image

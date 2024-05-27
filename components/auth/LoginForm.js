@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import React, { useState } from 'react';
+import React from 'react'
 import { TextInput } from 'react-native-gesture-handler';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -18,7 +18,7 @@ import {
 } from '../../config/firebase.config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { icons } from 'react-native-elements'
+import { LinearGradient } from 'expo-linear-gradient'
 
 const LoginForm = ({ navigation }) => {
   const LoginFormSchema = Yup.object().shape({
@@ -117,11 +117,14 @@ const LoginForm = ({ navigation }) => {
               </Text>
             </View>
 
-            <Pressable
-              titleSize={20}
-              style={styles.Pressable(isValid)}
-              onPress={handleSubmit}>
-              <Text style={styles.PressableText}>Log in</Text>
+            <Pressable onPress={handleSubmit}>
+              <LinearGradient
+                colors={['#cdcdcd', '#485563', '#2b5876', '#4e4376']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.gradientButton(isValid)}>
+                <Text style={styles.PressableText}>Log in</Text>
+              </LinearGradient>
             </Pressable>
 
             <View style={styles.SignUpContainer}>
@@ -166,13 +169,15 @@ const styles = StyleSheet.create({
     color: '#424242',
     fontSize: 14,
   },
-  Pressable: isValid => ({
+  gradientButton: isValid => ({
     borderRadius: 4,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 40,
     marginBottom: 50,
-    backgroundColor: isValid ? '#D0D3D4' : '#000000',
+    opacity: isValid ? 1 : 0.5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
   }),
   PressableText: {
     color: '#212121',
@@ -194,6 +199,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 5,
   },
-});
+})
 
 export default LoginForm;
