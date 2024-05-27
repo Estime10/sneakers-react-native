@@ -386,7 +386,7 @@ const BottomModal = forwardRef((props, ref) => {
                             <Text
                               style={{
                                 color: '#ffff',
-                                fontSize: 10,
+                                fontSize: 13,
                                 fontWeight: 'bold',
                               }}>
                               {comment.username || comment.owner_email}
@@ -394,7 +394,7 @@ const BottomModal = forwardRef((props, ref) => {
                             <Text
                               style={{
                                 color: '#ffff',
-                                fontSize: 10,
+                                fontSize: 12,
                                 paddingTop: 4,
                                 textAlign: 'right',
                               }}>
@@ -414,7 +414,7 @@ const BottomModal = forwardRef((props, ref) => {
                           <Text
                             style={{
                               color: '#ffff',
-                              fontSize: 12,
+                              fontSize: 15,
                               width: '90%',
                               marginTop: 14,
                             }}>
@@ -466,8 +466,8 @@ const BottomModal = forwardRef((props, ref) => {
                             <Text
                               style={{
                                 color: '#424242',
-                                fontSize: 12,
-                                marginTop: 4,
+                                fontSize: 14,
+                                marginTop: 10,
                                 marginBottom: 5,
                               }}>
                               responde
@@ -552,17 +552,18 @@ const BottomModal = forwardRef((props, ref) => {
                                         flexDirection: 'row',
                                         marginBottom: 5,
                                       }}>
-                                      <Image
+                                      {/* <Image
                                         source={
                                           reply.avatar || icons.TAB_AVATAR
                                         }
                                         style={styles.avatar}
-                                      />
+                                      /> */}
                                       <Text
                                         style={{
                                           color: '#fff',
                                           fontSize: 10,
                                           fontWeight: 'bold',
+                                          marginLeft: 20,
                                         }}>
                                         {reply.username || reply.owner_email}
                                       </Text>
@@ -571,7 +572,7 @@ const BottomModal = forwardRef((props, ref) => {
                                       key={replyIndex}
                                       style={{
                                         color: '#fff',
-                                        fontSize: 10,
+                                        fontSize: 15,
                                         marginLeft: 20,
                                       }}>
                                       {reply.text}
@@ -582,9 +583,9 @@ const BottomModal = forwardRef((props, ref) => {
                               <Text
                                 style={{
                                   color: '#424242',
-                                  fontSize: 10,
-                                  marginLeft: 20,
-                                  marginTop: 5,
+                                  fontSize: 14,
+                                  marginTop: 10,
+                                  marginBottom: 5,
                                 }}
                                 onPress={() =>
                                   toggleRepliesVisibility(comment.id)
@@ -645,8 +646,8 @@ const styles = StyleSheet.create({
     color: '#ffff',
   },
   avatar: {
-    width: 15,
-    height: 15,
+    width: 30,
+    height: 30,
     borderRadius: 15,
     marginRight: 3,
   },
@@ -700,7 +701,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   replyTextInput: {
-    fontSize: 10,
+    fontSize: 15,
     height: 35,
     width: '100%',
     color: '#ffffff',

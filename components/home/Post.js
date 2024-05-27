@@ -22,6 +22,7 @@ import {
 import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
 import CommentBottomSheet from './CommentBottomSheet'
 import { icons } from '../../constants'
+import moment from 'moment/moment'
 
 const Post = ({ post }) => {
   const [currentPost, setCurrentPost] = useState(post)
@@ -239,17 +240,21 @@ const Caption = ({ post }) => (
   </View>
 )
 
-const CommentSection = ({ commentCount, handleComment }) => (
+const CommentSection = ({ commentCount, handleComment, post }) => (
   <View style={{ marginTop: 5 }}>
     {commentCount > 0 ? (
       <TouchableOpacity onPress={handleComment}>
         <Text style={{ color: '#626567', marginTop: 5 }}>
-          View {commentCount} {commentCount > 1 ? 'comments' : 'comment'}
+          Voir {commentCount}{' '}
+          {commentCount > 1 ? 'commentaires' : 'commentaire'}
         </Text>
       </TouchableOpacity>
-    ) : (
-      ''
-    )}
+    ) : null}
+    <Text style={{ color: '#626567', marginTop: 5 }}>
+      {post.createdAt
+        ? moment(post.createdAt.toDate()).fromNow()
+        : 'Date inconnue'}
+    </Text>
   </View>
 )
 

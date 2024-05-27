@@ -4,14 +4,8 @@ import Header from '../components/home/Header';
 import Stories from '../components/home/Stories';
 import Post from '../components/home/Post';
 import BottomTab, { BottomTabIcons } from '../components/home/BottomTab';
-import { firebaseAuth, firestoreDB } from '../config/firebase.config';
-import {
-  collection,
-  getDocs,
-  onSnapshot,
-  orderBy,
-  query,
-} from 'firebase/firestore';
+import { firestoreDB } from '../config/firebase.config'
+import { collection, getDocs, onSnapshot } from 'firebase/firestore'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 
 const HomeScreen = ({ navigation }) => {

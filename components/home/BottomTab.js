@@ -1,56 +1,72 @@
 import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
-import { Divider } from 'react-native-elements';
+import React, { useEffect, useState } from 'react'
+import { Divider } from 'react-native-elements'
+import { useNavigation, useNavigationState } from '@react-navigation/native'
 
 export const BottomTabIcons = [
   {
-    name: 'Home',
+    name: 'HomeScreen',
     active:
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabHome-active.png',
     inactive:
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabHome.png',
+    screen: 'HomeScreen',
   },
   {
-    name: 'Search',
+    name: 'SearchScreen',
     active:
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabSearch-active.png',
     inactive:
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabSearch.png',
+    screen: 'SearchScreen',
   },
   {
-    name: 'AddNewPost',
+    name: 'NewPostScreen',
     active:
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabPlus-active.png',
     inactive:
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabPlus.png',
+    screen: 'NewPostScreen',
   },
   {
-    name: 'Reel',
+    name: 'ChartScreen',
     active:
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabChart-active.png',
     inactive:
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabChart.png',
+    screen: 'ChartScreen',
   },
   {
-    name: 'Profile',
+    name: 'ProfileScreen',
     active:
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabAvatar-active.png',
     inactive:
       '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabAvatar.png',
+    screen: 'ProfileScreen',
   },
 ]
 
 const BottomTab = ({ icons }) => {
+  const navigation = useNavigation()
   const [activeTab, setActiveTab] = useState('Home')
+  const currentRoutes = useNavigationState(state => state.routes)
+
+  useEffect(() => {
+    if (currentRoutes.length > 0) {
+      const currentScreen = currentRoutes[currentRoutes.length - 1].name
+      setActiveTab(currentScreen)
+    }
+  }, [currentRoutes])
 
   const Icon = ({ icon }) => (
-    <TouchableOpacity onPress={() => setActiveTab(icon.name)}>
+    <TouchableOpacity
+      onPress={() => {
+        setActiveTab(icon.name)
+        navigation.navigate(icon.screen)
+      }}>
       <Image
         source={{ uri: activeTab === icon.name ? icon.active : icon.inactive }}
-        style={[
-          styles.icon,
-          activeTab === 'Profile' && icon.name === activeTab,
-        ]}
+        style={styles.icon}
       />
     </TouchableOpacity>
   )

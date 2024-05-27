@@ -9,6 +9,7 @@
     "email-validator": "^2.0.4",
     "expo": "50.0.19",
     "expo-image-picker": "~14.7.1",
+    "expo-linear-gradient": "~12.7.2",
     "firebase": "^10.11.1",
     "formik": "^2.4.6",
     "moment": "^2.30.1",

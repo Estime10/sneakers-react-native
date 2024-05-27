@@ -5501,6 +5501,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-linear-gradient@npm:~12.7.2":
+  version: 12.7.2
+  resolution: "expo-linear-gradient@npm:12.7.2"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/08701b3aaad7a063da034fe778821453d0bde50b62d54a6a131ab7ffd270422e9f12461846350a6e6bad0165cdf286150ad86e1307fc1712aabe16e0513ec937
+  languageName: node
+  linkType: hard
+
 "expo-modules-autolinking@npm:1.10.3":
   version: 1.10.3
   resolution: "expo-modules-autolinking@npm:1.10.3"
@@ -9800,6 +9809,7 @@ __metadata:
     email-validator: "npm:^2.0.4"
     expo: "npm:50.0.19"
     expo-image-picker: "npm:~14.7.1"
+    expo-linear-gradient: "npm:~12.7.2"
     firebase: "npm:^10.11.1"
     formik: "npm:^2.4.6"
     moment: "npm:^2.30.1"
