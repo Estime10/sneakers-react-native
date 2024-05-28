@@ -1,9 +1,9 @@
-import { View, Text, StyleSheet, Image } from 'react-native';
-import React from 'react';
-import LoginForm from '../components/auth/LoginForm';
+import { View, StyleSheet, Image } from 'react-native'
+import React from 'react'
+import LoginForm from '../components/auth/LoginForm'
 
 const LOGO =
-  '/Users/Estime/Desktop/private/react_native/sneakers/assets/images/logo.png';
+  '/Users/Estime/Desktop/private/react_native/sneakers/assets/images/logo.png'
 
 const LoginScreen = ({ navigation }) => (
   <View style={styles.container}>
@@ -15,7 +15,7 @@ const LoginScreen = ({ navigation }) => (
     </View>
     <LoginForm navigation={navigation} />
   </View>
-);
+)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -32,5 +32,5 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
   },
-});
-export default LoginScreen;
+})
+export default LoginScreen

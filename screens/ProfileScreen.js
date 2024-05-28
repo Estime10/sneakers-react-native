@@ -1,13 +1,12 @@
-import { View, StyleSheet, SafeAreaView, ScrollView } from 'react-native'
+import { StyleSheet, SafeAreaView, ScrollView, StatusBar } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Profile from '../components/profile/Profile'
 import BottomTab, { BottomTabIcons } from '../components/home/BottomTab'
-import Post from '../components/home/Post'
 import { firestoreDB } from '../config/firebase.config'
 import { collection, getDocs, onSnapshot } from 'firebase/firestore'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([])
   const [users, setUsers] = useState([])
 
@@ -51,13 +50,16 @@ const ProfileScreen = () => {
 
     fetchPosts()
   }, [users])
+
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle='light-content' />
       <BottomSheetModalProvider>
         <ScrollView showsVerticalScrollIndicator={false}>
           <Profile
             users={users}
             posts={posts}
+            navigation={navigation}
           />
         </ScrollView>
         <BottomTab icons={BottomTabIcons} />

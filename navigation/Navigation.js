@@ -5,6 +5,7 @@ import NewPostScreen from '../screens/NewPostScreen'
 import LoginScreen from '../screens/LoginScreen'
 import SignupScreen from '../screens/SignupScreen'
 import ProfileScreen from '../screens/ProfileScreen'
+import ModifyProfileScreen from '../screens/ModifyProfileScreen'
 
 const Stack = createStackNavigator()
 
@@ -27,6 +28,10 @@ export const SignedInStack = () => (
     <Stack.Screen
       name='ProfileScreen'
       component={ProfileScreen}
+    />
+    <Stack.Screen
+      name='ModifyProfileScreen'
+      component={ModifyProfileScreen}
     />
   </Stack.Navigator>
 )

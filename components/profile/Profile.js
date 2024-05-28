@@ -5,41 +5,49 @@ import { Divider } from 'react-native-elements'
 import {
   collection,
   doc,
-  getDoc,
   onSnapshot,
+  orderBy,
   query,
   where,
 } from 'firebase/firestore'
 import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
 import { icons } from '../../constants'
 
-const Header = () => {
+const BANNER_IMAGE = require('/Users/Estime/Desktop/private/react_native/sneakers/assets/images/name.png')
+const AVATAR_IMAGE = require('/Users/Estime/Desktop/private/react_native/sneakers/assets/images/logo.png')
+
+const Header = ({ navigation }) => {
   const [userData, setUserData] = useState({})
+  const [posts, setPosts] = useState([])
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (firebaseAuth.currentUser) {
         const userEmail = firebaseAuth.currentUser.email
         const userRef = doc(firestoreDB, 'users', userEmail)
-        const docSnap = await getDoc(userRef)
-
-        if (docSnap.exists()) {
-          setUserData(docSnap.data())
-        } else {
-          console.log('No such document!')
-        }
+        onSnapshot(userRef, docSnap => {
+          if (docSnap.exists()) {
+            setUserData(docSnap.data())
+          } else {
+            console.log('Aucun document trouvé!')
+          }
+        })
       }
     }
 
     fetchUserData()
   }, [])
 
-  const [posts, setPosts] = useState([])
   useEffect(() => {
     const currentUser = firebaseAuth.currentUser
     if (currentUser) {
       const userId = currentUser.email
       const postsRef = collection(firestoreDB, 'users', userId, 'posts')
-      const q = query(postsRef, where('user', '==', userId))
+      const q = query(
+        postsRef,
+        where('user', '==', userId),
+        orderBy('createdAt', 'desc')
+      )
 
       const unsubscribe = onSnapshot(q, snapshot => {
         const postsData = snapshot.docs.map(doc => ({
@@ -60,10 +68,11 @@ const Header = () => {
         marginBottom: 100,
       }}>
       <Options />
-      <Banner />
+      <Banner userData={userData} />
       <Profile
         userData={userData}
         posts={posts}
+        navigation={navigation}
       />
       <Divider
         style={{ marginTop: 20 }}
@@ -103,23 +112,25 @@ const Options = () => (
     </View>
   </View>
 )
-const Banner = () => (
+const Banner = ({ userData }) => (
   <View style={styles.BannerContainer}>
     <View style={styles.banner}>
       <Image
-        source={require('../../assets/images/header.jpg')}
+        source={
+          userData.bannerImage ? { uri: userData.bannerImage } : BANNER_IMAGE
+        }
         style={styles.image}
       />
       <View style={styles.profileContainer}>
         <Image
-          source={require('../../assets/images/profilePic.jpeg')}
+          source={userData.avatar ? { uri: userData.avatar } : AVATAR_IMAGE}
           style={styles.profileimage}
         />
       </View>
     </View>
   </View>
 )
-const Profile = ({ userData, posts }) => (
+const Profile = ({ userData, posts, navigation }) => (
   <>
     <View
       style={{
@@ -163,13 +174,16 @@ const Profile = ({ userData, posts }) => (
           justifyContent: 'space-evenly',
         }}>
         <View>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.push('ModifyProfileScreen')
+            }}>
             <LinearGradient
               colors={['#cdcdcd', '#485563', '#2b5876', '#4e4376']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.gradientButton}>
-              <Text style={styles.buttonText}>modify my profile</Text>
+              <Text style={styles.buttonText}>modify profile</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -180,7 +194,7 @@ const Profile = ({ userData, posts }) => (
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.gradientButton}>
-              <Text style={styles.buttonText}>share my profile</Text>
+              <Text style={styles.buttonText}>modify settings</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -224,7 +238,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-    paddingTop: 10,
+    paddingTop: 1,
     paddingBottom: 10,
     marginTop: 15,
     width: '100%',
@@ -237,6 +251,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+    borderRadius: 10,
   },
   profileContainer: {
     position: 'absolute',
@@ -254,7 +269,6 @@ const styles = StyleSheet.create({
     left: '20%',
     marginLeft: -150,
     borderWidth: 5,
-    borderColor: 'black',
   },
   profile: {
     marginLeft: 160,
@@ -318,21 +332,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     alignItems: 'center',
     marginTop: 10,
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  logo: {
-    width: 250,
-    height: 50,
-    marginLeft: -50,
-    marginTop: 10,
-    resizeMode: 'cover',
-  },
-
   icon: {
     width: 25,
     height: 25,
     marginLeft: 20,
-    marginTop: -20,
+    marginTop: -10,
   },
   iconGrid: {
     width: 25,
@@ -362,13 +368,19 @@ const styles = StyleSheet.create({
   },
   box: {
     width: '31%',
-    margin: '0.5%',
+    margin: '0%',
+
+    borderRadius: 10,
   },
   postImage: {
     width: '100%',
-    height: 100,
+    height: 150,
+    resizeMode: 'contain',
+    borderWidth: 1,
+    borderColor: '#808080',
+    borderRadius: 10,
     marginBottom: 10,
-    resizeMode: 'cover',
+    backgroundColor: 'transparent',
   },
 })
 export default Header

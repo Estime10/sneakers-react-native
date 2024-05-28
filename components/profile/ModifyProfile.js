@@ -1,12 +1,13 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import React from 'react';
-import FormikPostUploader from './FormikPostUploader';
-import { icons } from '../../constants'
+import { View, Text, StyleSheet } from 'react-native'
+import React from 'react'
+import { TouchableOpacity, Image } from 'react-native'
+import { icons } from '../../constants/'
+import FormikModifyProfile from './FormikModifyProfile'
 
-const AddNewPost = ({ navigation }) => (
+const ModifyProfile = ({ navigation }) => (
   <View style={styles.container}>
     <Header navigation={navigation} />
-    <FormikPostUploader navigation={navigation} />
+    <FormikModifyProfile navigation={navigation} />
   </View>
 )
 
@@ -18,7 +19,7 @@ const Header = ({ navigation }) => (
         style={styles.icon}
       />
     </TouchableOpacity>
-    <Text style={styles.headerText}>new post</Text>
+    <Text style={styles.headerText}>Modify Profile</Text>
     <Text></Text>
   </View>
 )
@@ -47,6 +48,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     marginRight: 25,
   },
-});
+})
 
-export default AddNewPost;
+export default ModifyProfile

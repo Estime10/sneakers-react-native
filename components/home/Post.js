@@ -168,7 +168,7 @@ const PostImage = ({ post }) => (
     <Image
       source={{ uri: post.imageUrl }}
       style={{
-        resizeMode: 'cover',
+        resizeMode: 'contain',
         height: '100%',
         width: '100%',
       }}
