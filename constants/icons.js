@@ -23,6 +23,17 @@ import SEND from '../assets/icons/sendArrow.png'
 import ARROBASE from '../assets/icons/arrobase.png'
 import HASH_TAG from '../assets/icons/hashtag.png'
 import TRADE from '../assets/icons/trade.png'
+import HOMESCREEN from '../assets/icons/tabHome.png'
+import HOMESCREEN_ACTIVE from '../assets/icons/tabHome-active.png'
+import SEARCHSCREEN from '../assets/icons/tabSearch.png'
+import SEARCHSCREEN_ACTIVE from '../assets/icons/tabSearch-active.png'
+import NEWPOSTSCREEN from '../assets/icons/tabPlus.png'
+import NEWPOSTSCREEN_ACTIVE from '../assets/icons/tabPlus-active.png'
+import PROFILESCREEN from '../assets/icons/tabAvatar.png'
+import PROFILESCREEN_ACTIVE from '../assets/icons/tabAvatar-active.png'
+import CHARTSCREEN from '../assets/icons/tabChart.png'
+import CHARTSCREEN_ACTIVE from '../assets/icons/tabChart-active.png'
+
 
 export default {
   BOOKMARK,
@@ -50,4 +61,14 @@ export default {
   ARROBASE,
   HASH_TAG,
   TRADE,
+  HOMESCREEN,
+  HOMESCREEN_ACTIVE,
+  SEARCHSCREEN,
+  SEARCHSCREEN_ACTIVE,
+  NEWPOSTSCREEN,
+  NEWPOSTSCREEN_ACTIVE,
+  PROFILESCREEN,
+  PROFILESCREEN_ACTIVE,
+  CHARTSCREEN,
+  CHARTSCREEN_ACTIVE,
 }

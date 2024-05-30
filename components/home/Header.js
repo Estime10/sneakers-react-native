@@ -34,7 +34,7 @@ const Header = ({ navigation }) => {
 
         <TouchableOpacity>
           <View style={styles.unreadBadge}>
-            <Text style={styles.unreadBadgeText}>30</Text>
+            <Text style={styles.unreadBadgeText}></Text>
           </View>
           <Image
             source={icons.CHAT}
@@ -56,11 +56,9 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     marginTop: 15,
   },
-
   iconContainer: {
     flexDirection: 'row',
   },
-
   logo: {
     width: 250,
     height: 50,
@@ -68,7 +66,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     resizeMode: 'cover',
   },
-
   icon: {
     width: 25,
     height: 25,
@@ -77,15 +74,14 @@ const styles = StyleSheet.create({
 
     resizeMode: 'contain',
   },
-
   unreadBadge: {
     backgroundColor: '#808080',
     position: 'absolute',
-    left: 30,
+    left: 35,
     bottom: 16,
     borderRadius: 25,
-    width: 20,
-    height: 18,
+    width: 14,
+    height: 14,
     justifyContent: 'center',
     zIndex: 100,
   },

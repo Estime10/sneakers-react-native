@@ -49,7 +49,7 @@ const LoginForm = ({ navigation }) => {
         }
       )
     } catch (error) {
-      Alert.alert(error.message)
+      Alert.alert('Wrong Credentials')
     }
   }
 

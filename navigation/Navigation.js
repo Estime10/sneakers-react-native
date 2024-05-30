@@ -6,6 +6,7 @@ import LoginScreen from '../screens/LoginScreen'
 import SignupScreen from '../screens/SignupScreen'
 import ProfileScreen from '../screens/ProfileScreen'
 import ModifyProfileScreen from '../screens/ModifyProfileScreen'
+import ModifySettingsScreen from '../screens/ModifySettingsScreen'
 
 const Stack = createStackNavigator()
 
@@ -32,6 +33,10 @@ export const SignedInStack = () => (
     <Stack.Screen
       name='ModifyProfileScreen'
       component={ModifyProfileScreen}
+    />
+    <Stack.Screen
+      name='ModifySettingsScreen'
+      component={ModifySettingsScreen}
     />
   </Stack.Navigator>
 )

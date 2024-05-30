@@ -45,7 +45,7 @@ const SignupForm = ({ navigation }) => {
       })
       navigation.navigate('HomeScreen')
     } catch (error) {
-      Alert.alert('Error', error.message)
+      Alert.alert('A User is already registered with this email address.')
     }
   }
 

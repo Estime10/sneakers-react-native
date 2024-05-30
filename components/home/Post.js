@@ -164,12 +164,17 @@ const PostHeader = ({ post }) => (
 )
 
 const PostImage = ({ post }) => (
-  <View style={{ width: '100%', height: 450 }}>
+  <View
+    style={{
+      width: '100%',
+      height: 350,
+      paddingTop: 5,
+    }}>
     <Image
       source={{ uri: post.imageUrl }}
       style={{
-        resizeMode: 'contain',
-        height: '100%',
+        resizeMode: 'fit',
+        height: 350,
         width: '100%',
       }}
     />
@@ -177,13 +182,19 @@ const PostImage = ({ post }) => (
 )
 
 const PostFooter = ({ handleLike, handleComment, post }) => (
-  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+  <View
+    style={{
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+
+      paddingTop: 10,
+    }}>
     <View style={styles.leftFooterIconContainer}>
       <TouchableOpacity onPress={() => handleLike(post)}>
         <Image
           style={styles.footerIcon}
           source={
-            post.likes_by_users.includes(firebaseAuth.currentUser.email)
+            post.likes_by_users.includes(firebaseAuth.currentUser?.email)
               ? icons.LIKED
               : icons.LIKE
           }

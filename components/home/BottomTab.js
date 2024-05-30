@@ -2,47 +2,38 @@ import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react'
 import { Divider } from 'react-native-elements'
 import { useNavigation, useNavigationState } from '@react-navigation/native'
+import { icons } from '../../constants'
 
 export const BottomTabIcons = [
   {
     name: 'HomeScreen',
-    active:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabHome-active.png',
-    inactive:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabHome.png',
     screen: 'HomeScreen',
+    icon: icons.HOMESCREEN,
+    iconActive: icons.HOMESCREEN_ACTIVE,
   },
   {
     name: 'SearchScreen',
-    active:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabSearch-active.png',
-    inactive:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabSearch.png',
     screen: 'SearchScreen',
+    icon: icons.SEARCHSCREEN,
+    iconActive: icons.SEARCHSCREEN_ACTIVE,
   },
   {
     name: 'NewPostScreen',
-    active:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabPlus-active.png',
-    inactive:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabPlus.png',
     screen: 'NewPostScreen',
+    icon: icons.NEWPOSTSCREEN,
+    iconActive: icons.NEWPOSTSCREEN_ACTIVE,
   },
   {
     name: 'ChartScreen',
-    active:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabChart-active.png',
-    inactive:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabChart.png',
     screen: 'ChartScreen',
+    icon: icons.CHARTSCREEN,
+    iconActive: icons.CHARTSCREEN_ACTIVE,
   },
   {
     name: 'ProfileScreen',
-    active:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabAvatar-active.png',
-    inactive:
-      '/Users/Estime/Desktop/private/react_native/sneakers/assets/icons/tabAvatar.png',
     screen: 'ProfileScreen',
+    icon: icons.PROFILESCREEN,
+    iconActive: icons.PROFILESCREEN_ACTIVE,
   },
 ]
 
@@ -65,7 +56,7 @@ const BottomTab = ({ icons }) => {
         navigation.navigate(icon.screen)
       }}>
       <Image
-        source={{ uri: activeTab === icon.name ? icon.active : icon.inactive }}
+        source={activeTab === icon.name ? icon.iconActive : icon.icon}
         style={styles.icon}
       />
     </TouchableOpacity>
@@ -93,20 +84,20 @@ const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',
     width: '100%',
-    bottom: '3%',
+    bottom: 0,
     backgroundColor: '#000000',
   },
 
   container: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    height: 50,
+    height: 80,
     padding: 10,
   },
   icon: {
     width: 30,
     height: 30,
-    marginTop: 5,
+    marginTop: 10,
     marginBottom: 10,
   },
 })

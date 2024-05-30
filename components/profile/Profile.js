@@ -102,7 +102,7 @@ const Options = () => (
 
       <TouchableOpacity>
         <View style={styles.unreadBadge}>
-          <Text style={styles.unreadBadgeText}>30</Text>
+          <Text style={styles.unreadBadgeText}></Text>
         </View>
         <Image
           source={icons.CHAT}
@@ -188,7 +188,10 @@ const Profile = ({ userData, posts, navigation }) => (
           </TouchableOpacity>
         </View>
         <View>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.push('ModifySettingsScreen')
+            }}>
             <LinearGradient
               colors={['#cdcdcd', '#485563', '#2b5876', '#4e4376']}
               start={{ x: 0, y: 0 }}
@@ -344,22 +347,16 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
   },
-
   unreadBadge: {
     backgroundColor: '#808080',
     position: 'absolute',
-    left: 30,
+    left: 35,
     bottom: 16,
     borderRadius: 25,
-    width: 20,
-    height: 18,
+    width: 14,
+    height: 14,
     justifyContent: 'center',
     zIndex: 100,
-  },
-  unreadBadgeText: {
-    color: '#fff',
-    fontWeight: '700',
-    padding: 1,
   },
   grid: {
     flexDirection: 'row',
@@ -369,18 +366,13 @@ const styles = StyleSheet.create({
   box: {
     width: '31%',
     margin: '0%',
-
-    borderRadius: 10,
   },
   postImage: {
     width: '100%',
-    height: 150,
-    resizeMode: 'contain',
-    borderWidth: 1,
-    borderColor: '#808080',
+    height: 120,
+    resizeMode: 'fit',
     borderRadius: 10,
     marginBottom: 10,
-    backgroundColor: 'transparent',
   },
 })
 export default Header

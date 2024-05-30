@@ -20,14 +20,11 @@ import {
   storage,
 } from '../../config/firebase.config'
 import {
-  addDoc,
   collection,
   doc,
   getDoc,
   getDocs,
-  onSnapshot,
   query,
-  serverTimestamp,
   setDoc,
   where,
 } from 'firebase/firestore'
@@ -35,7 +32,7 @@ import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
 
 const BANNER_IMAGE =
   '/Users/Estime/Desktop/private/react_native/sneakers/assets/images/name.png'
-const AVATAR_IMAGE =
+const AVATAR =
   '/Users/Estime/Desktop/private/react_native/sneakers/assets/images/logo.png'
 
 const ModifyProfileFormSchema = Yup.object().shape({
@@ -61,7 +58,7 @@ const ModifyProfileFormSchema = Yup.object().shape({
 
 const FormikModifyProfile = ({ navigation }) => {
   const [bannerImage, setBannerImage] = useState(BANNER_IMAGE)
-  const [avatar, setAvatar] = useState(AVATAR_IMAGE)
+  const [avatar, setAvatar] = useState(AVATAR)
   const [userProfile, setUserProfile] = useState([])
 
   const modifyProfile = async (username, avatar, bannerImage) => {
@@ -115,6 +112,7 @@ const FormikModifyProfile = ({ navigation }) => {
       setFieldValue('avatar', downloadURL)
     }
   }
+
   const uploadAvatar = async avatar => {
     try {
       const response = await fetch(avatar)
@@ -195,6 +193,7 @@ const FormikModifyProfile = ({ navigation }) => {
       ]
     )
   }
+
   const confirmClear = setFieldValue => {
     Alert.alert(
       'Confirm reset',
@@ -210,10 +209,10 @@ const FormikModifyProfile = ({ navigation }) => {
           onPress: () => {
             console.log('Reset confirmed')
             setFieldValue('username', '')
-            setFieldValue('avatar', AVATAR_IMAGE)
-            setFieldValue('bannerImage', BANNER_IMAGE)
-            setAvatar(AVATAR_IMAGE)
-            setBannerImage(BANNER_IMAGE)
+            setFieldValue('avatar', '')
+            setFieldValue('bannerImage', '')
+            setAvatar('')
+            setBannerImage('')
           },
         },
       ]
@@ -223,9 +222,10 @@ const FormikModifyProfile = ({ navigation }) => {
   return (
     <Formik
       initialValues={{ username: '', avatar: '', bannerImage: '' }}
-      onSubmit={(values, { setSubmitting }) => {
+      onSubmit={(values, { setSubmitting, resetForm }) => {
         modifyProfile(values.username, values.avatar, values.bannerImage)
         setSubmitting(false)
+        resetForm(values.username, values.avatar, values.bannerImage)
       }}
       validationSchema={ModifyProfileFormSchema}
       validateOnMount={true}>
@@ -234,21 +234,21 @@ const FormikModifyProfile = ({ navigation }) => {
         handleChange,
         handleSubmit,
         setFieldValue,
+        resetForm,
         values,
-        errors,
         isValid,
       }) => (
         <>
           <View style={styles.BannerContainer}>
             <View style={styles.banner}>
               <Image
-                source={{ uri: bannerImage }}
+                source={{ uri: bannerImage || BANNER_IMAGE }}
                 style={styles.image}
               />
             </View>
             <View style={styles.profileContainer}>
               <Image
-                source={{ uri: avatar }}
+                source={{ uri: avatar || AVATAR }}
                 style={styles.profileimage}
               />
             </View>
@@ -303,12 +303,12 @@ const FormikModifyProfile = ({ navigation }) => {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.gradientButton}>
-                <Text style={styles.buttonText}>submit modifications</Text>
+                <Text style={styles.buttonText}>submit modification</Text>
               </LinearGradient>
             </TouchableOpacity>
             <Button
               title='reset'
-              onPress={() => confirmClear(setFieldValue)}
+              onPress={() => confirmClear(setFieldValue, resetForm)} // Passez resetForm à confirmClear
             />
           </View>
         </>
