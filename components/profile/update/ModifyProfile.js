@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
 import { TouchableOpacity, Image } from 'react-native'
-import { icons } from '../../constants/'
+import { icons } from '../../../constants'
 import FormikModifyProfile from './FormikModifyProfile'
 
 const ModifyProfile = ({ navigation }) => (
@@ -28,12 +28,10 @@ const styles = StyleSheet.create({
   container: {
     marginHorizontal: 10,
   },
-
   icon: {
     width: 25,
     height: 25,
   },
-
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -18,7 +18,7 @@ import {
   firebaseAuth,
   firestoreDB,
   storage,
-} from '../../config/firebase.config'
+} from '../../../config/firebase.config'
 import {
   collection,
   doc,

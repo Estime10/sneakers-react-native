@@ -160,7 +160,6 @@ const BottomModal = forwardRef((props, ref) => {
           owner_email: currentUser.email,
           text: comment,
           createdAt: serverTimestamp(),
-          comment_liked_by_user: [],
         }
       )
       setComments('')

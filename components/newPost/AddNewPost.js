@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
-import FormikPostUploader from './FormikPostUploader';
+import FormikPostUploader from './form/FormikPostUploader'
 import { icons } from '../../constants'
 
 const AddNewPost = ({ navigation }) => (

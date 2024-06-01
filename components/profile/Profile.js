@@ -16,7 +16,7 @@ import { icons } from '../../constants'
 const BANNER_IMAGE = require('/Users/Estime/Desktop/private/react_native/sneakers/assets/images/name.png')
 const AVATAR_IMAGE = require('/Users/Estime/Desktop/private/react_native/sneakers/assets/images/logo.png')
 
-const Header = ({ navigation }) => {
+const Profiles = ({ navigation }) => {
   const [userData, setUserData] = useState({})
   const [posts, setPosts] = useState([])
 
@@ -79,7 +79,10 @@ const Header = ({ navigation }) => {
         width={1}
         orientation='vertical'
       />
-      <DataGrid posts={posts} />
+      <DataGrid
+        posts={posts}
+        navigation={navigation}
+      />
     </View>
   )
 }
@@ -102,7 +105,7 @@ const Options = () => (
 
       <TouchableOpacity>
         <View style={styles.unreadBadge}>
-          <Text style={styles.unreadBadgeText}></Text>
+          <Text></Text>
         </View>
         <Image
           source={icons.CHAT}
@@ -205,7 +208,7 @@ const Profile = ({ userData, posts, navigation }) => (
     </>
   </>
 )
-const DataGrid = ({ posts }) => (
+const DataGrid = ({ posts, navigation }) => (
   <View>
     <View style={styles.iconGridContainer}>
       <Image
@@ -221,18 +224,20 @@ const DataGrid = ({ posts }) => (
         style={styles.iconGrid}
       />
     </View>
-    <View style={styles.grid}>
-      {posts.map((post, index) => (
-        <View
-          key={index}
-          style={styles.box}>
-          <Image
-            source={{ uri: post.imageUrl }}
-            style={styles.postImage}
-          />
-        </View>
-      ))}
-    </View>
+    <TouchableOpacity onPress={() => navigation.push('ListOfPostScreen')}>
+      <View style={styles.grid}>
+        {posts.map((post, index) => (
+          <View
+            key={index}
+            style={styles.box}>
+            <Image
+              source={{ uri: post.imageUrl }}
+              style={styles.postImage}
+            />
+          </View>
+        ))}
+      </View>
+    </TouchableOpacity>
   </View>
 )
 
@@ -375,4 +380,4 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 })
-export default Header
+export default Profiles

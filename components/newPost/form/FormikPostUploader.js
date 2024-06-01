@@ -19,7 +19,7 @@ import {
   firebaseAuth,
   firestoreDB,
   storage,
-} from '../../config/firebase.config'
+} from '../../../config/firebase.config'
 import {
   addDoc,
   collection,
@@ -281,4 +281,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default FormikPostUploader;
+export default FormikPostUploader

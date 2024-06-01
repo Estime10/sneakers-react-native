@@ -5,7 +5,7 @@ import {
   Image,
   TouchableOpacity,
   Alert,
-} from 'react-native';
+} from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import { Divider } from 'react-native-elements'
 import {
@@ -17,15 +17,16 @@ import {
   onSnapshot,
   updateDoc,
 } from 'firebase/firestore'
-import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
-import CommentBottomSheet from '../modal/CommentBottomSheet'
-import { icons } from '../../constants'
+import { firebaseAuth, firestoreDB } from '../../../config/firebase.config'
+import { icons } from '../../../constants'
+import CommentBottomSheet from '../../modal/CommentBottomSheet'
 import moment from 'moment/moment'
 
 const Post = ({ post }) => {
   const [currentPost, setCurrentPost] = useState(post)
   const [commentCount, setCommentCount] = useState(0)
   const commentSheetRef = useRef(null)
+
   useEffect(() => {
     const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
 
@@ -267,7 +268,6 @@ const CommentSection = ({ commentCount, handleComment, post }) => (
   </View>
 )
 
-
 const styles = StyleSheet.create({
   story: {
     width: 35,
@@ -286,4 +286,4 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 })
-export default Post;
+export default Post

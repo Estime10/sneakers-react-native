@@ -1,8 +1,8 @@
-import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Image, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Divider } from 'react-native-elements'
 import { useNavigation, useNavigationState } from '@react-navigation/native'
-import { icons } from '../../constants'
+import { icons } from '../constants'
 
 export const BottomTabIcons = [
   {
@@ -101,4 +101,4 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 })
-export default BottomTab;
+export default BottomTab

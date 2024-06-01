@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Header from '../components/home/Header';
 import Stories from '../components/home/Stories';
 import Post from '../components/home/Post';
-import BottomTab, { BottomTabIcons } from '../components/home/BottomTab';
+import BottomTab, { BottomTabIcons } from '../components/BottomTab'
 import { firestoreDB } from '../config/firebase.config'
 import { collection, getDocs, onSnapshot } from 'firebase/firestore'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'

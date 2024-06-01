@@ -1,7 +1,7 @@
 import { View, Text, SafeAreaView, StyleSheet } from 'react-native'
 import React from 'react'
-import ModifyProfile from '../components/profile/ModifyProfile'
-import ModifySettings from '../components/profile/ModifySettings'
+import ModifyProfile from '../components/profile/update/ModifyProfile'
+import ModifySettings from '../components/profile/update/ModifySettings'
 
 const ModifyProfileScreen = ({ navigation }) => {
   return (
@@ -16,10 +16,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#000000',
     flex: 1,
-  },
-  text: {
-    color: 'white',
-    fontSize: 20,
   },
 })
 
