@@ -33,7 +33,7 @@ import PROFILESCREEN from '../assets/icons/tabAvatar.png'
 import PROFILESCREEN_ACTIVE from '../assets/icons/tabAvatar-active.png'
 import CHARTSCREEN from '../assets/icons/tabChart.png'
 import CHARTSCREEN_ACTIVE from '../assets/icons/tabChart-active.png'
-
+import CLOSE from '../assets/icons/close.png'
 
 export default {
   BOOKMARK,
@@ -71,4 +71,5 @@ export default {
   PROFILESCREEN_ACTIVE,
   CHARTSCREEN,
   CHARTSCREEN_ACTIVE,
+  CLOSE,
 }

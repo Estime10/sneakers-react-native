@@ -31,7 +31,6 @@ import {
   collection,
   doc,
   getDoc,
-  getDocs,
   onSnapshot,
   orderBy,
   query,
@@ -46,34 +45,9 @@ import * as Yup from 'yup'
 
 const BottomModal = forwardRef((props, ref) => {
   const { post } = props
-  const [comments, setComments] = useState('')
   const [commentsList, setCommentsList] = useState([])
-  const [replyInputVisibility, setReplyInputVisibility] = useState({})
-  const [replyText, setReplyText] = useState('')
-  const [showAllReplies, setShowAllReplies] = useState({})
+  const [activeCommentId, setActiveCommentId] = useState(null)
   const inputRef = useRef('')
-  const replyInputRefs = useRef({})
-
-  const toggleReplyInput = (commentId, userOrEmail) => {
-    setReplyInputVisibility(prevState => {
-      const isVisible = userOrEmail ? !prevState[commentId]?.visible : false
-      return {
-        ...prevState,
-        [commentId]: { visible: isVisible, userOrEmail: userOrEmail },
-      }
-    })
-  }
-
-  const toggleRepliesVisibility = commentId => {
-    setShowAllReplies(prevState => ({
-      ...prevState,
-      [commentId]: !prevState[commentId],
-    }))
-  }
-
-  useEffect(() => {
-    inputRef.current = inputRef.current || {}
-  }, [])
 
   useEffect(() => {
     const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
@@ -162,7 +136,6 @@ const BottomModal = forwardRef((props, ref) => {
           createdAt: serverTimestamp(),
         }
       )
-      setComments('')
     } catch (error) {
       Alert.alert('Erreur', error.message)
       console.error("Erreur lors de l'ajout du commentaire : ", error)
@@ -242,12 +215,20 @@ const BottomModal = forwardRef((props, ref) => {
         owner_uid: currentUser.uid,
         owner_email: currentUser.email,
       })
-      setReplyText('')
-      toggleReplyInput(commentId, '')
     } catch (error) {
-      console.error("Erreur lors de l'ajout de la réponse : ", error)
-      Alert.alert('Erreur', error.message)
+      console.error('Error adding reply : ', error)
+      Alert.alert('Error', error.message)
     }
+  }
+
+  const handleSubmit = async (values, { resetForm }) => {
+    if (activeCommentId) {
+      await handleReplyComment(activeCommentId, values.comment)
+    } else {
+      await handleAddComment(values.comment)
+    }
+    resetForm()
+    setActiveCommentId('')
   }
 
   const uploadPostSchema = Yup.object().shape({
@@ -262,6 +243,7 @@ const BottomModal = forwardRef((props, ref) => {
         style={styles.backdrop}
         onStartShouldSetResponder={() => {
           ref.current.dismiss()
+          setActiveCommentId(null)
           return true
         }}
       />
@@ -270,64 +252,105 @@ const BottomModal = forwardRef((props, ref) => {
   )
 
   const renderFooter = useCallback(
-    props => (
-      <Formik
-        initialValues={{ comment: '' }}
-        onSubmit={(values, { resetForm }) => {
-          handleAddComment(values.comment)
-            .then(() => {
-              resetForm()
-            })
-            .catch(error => {
-              console.error('Error uploading comment:', error)
-              Alert.alert('Error', error.message)
-            })
-        }}
-        validationSchema={uploadPostSchema}
-        validateOnMount={true}>
-        {({ handleChange, handleBlur, handleSubmit, values }) => (
-          <BottomSheetFooter
-            {...props}
-            style={styles.footerContaint}
-            enabledGestureInteraction={true}>
-            <Divider
-              width={1}
-              orientation='vertical'
-              style={{ marginBottom: 1, color: '#ffff' }}
-            />
-            <View>
-              <BottomSheetTextInput
-                style={styles.footerContainer}
-                placeholder='Add a comment'
-                placeholderTextColor='#979A9A'
-                onChangeText={handleChange('comment')}
-                onBlur={handleBlur('comment')}
-                value={values.comment}
-                multiline={true}
-                numberOfLines={4}
-                scrollEnabled={true}
-              />
-              {values.comment.trim() !== '' && (
-                <TouchableOpacity
-                  style={styles.sendButton}
-                  onPress={handleSubmit}>
-                  <Image
-                    style={styles.sendButtonText}
-                    source={icons.SEND}
+    props => {
+      const activeComment = commentsList.find(
+        comment => comment.id === activeCommentId
+      )
+
+      return (
+        <Formik
+          initialValues={{ comment: '' }}
+          onSubmit={handleSubmit}
+          validationSchema={uploadPostSchema}
+          validateOnMount={true}>
+          {({ handleChange, handleBlur, handleSubmit, values }) => (
+            <BottomSheetFooter
+              {...props}
+              style={styles.footerContaint}
+              enabledGestureInteraction={true}>
+              <View>
+                <View
+                  style={{
+                    backgroundColor: '#333333',
+                    height: 40,
+                    display: activeCommentId ? 'flex' : 'none',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}>
+                  {activeComment && (
+                    <Text
+                      style={{
+                        color: '#979A9A',
+                        paddingLeft: 10,
+                        fontSize: 15,
+                      }}>
+                      {activeComment.owner_email}
+                    </Text>
+                  )}
+                  <TouchableOpacity onPress={() => setActiveCommentId(null)}>
+                    <Image
+                      style={{
+                        color: '#979A9A',
+                        width: 20,
+                        height: 20,
+                        marginRight: 15,
+                      }}
+                      source={icons.CLOSE}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <Divider
+                  width={1}
+                  orientation='vertical'
+                  style={{ marginBottom: 10, color: '#ffff' }}
+                />
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}>
+                  <BottomSheetTextInput
+                    style={styles.footerContainer}
+                    placeholder={
+                      activeCommentId && activeComment
+                        ? `Reply to ${activeComment.owner_email}`
+                        : 'Add a comment'
+                    }
+                    placeholderTextColor='#979A9A'
+                    onChangeText={handleChange('comment')}
+                    onBlur={handleBlur('comment')}
+                    value={values.comment}
+                    ref={inputRef}
+                    multiline={true}
+                    numberOfLines={4}
+                    scrollEnabled={true}
                   />
-                </TouchableOpacity>
-              )}
-            </View>
-          </BottomSheetFooter>
-        )}
-      </Formik>
-    ),
-    [comments, commentsList, post, snapPoints, ref]
+                  {values.comment.trim() !== '' && (
+                    <TouchableOpacity
+                      style={styles.sendButton}
+                      onPress={handleSubmit}>
+                      <Image
+                        style={styles.sendButtonText}
+                        source={icons.SEND}
+                      />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            </BottomSheetFooter>
+          )}
+        </Formik>
+      )
+    },
+    [activeCommentId, ref, commentsList]
   )
 
   return (
     <TouchableWithoutFeedback
-      onPress={Keyboard.dismiss}
+      onPress={() => {
+        Keyboard.dismiss()
+      }}
       accessible={false}>
       <View>
         <BottomSheetModal
@@ -385,7 +408,7 @@ const BottomModal = forwardRef((props, ref) => {
                             <Text
                               style={{
                                 color: '#ffff',
-                                fontSize: 13,
+                                fontSize: 15,
                                 fontWeight: 'bold',
                               }}>
                               {comment.username || comment.owner_email}
@@ -454,14 +477,9 @@ const BottomModal = forwardRef((props, ref) => {
                             </View>
                           </View>
                         </View>
-                        <View style={{ marginBottom: 10 }}>
+                        <View style={{ marginBottom: 50 }}>
                           <TouchableOpacity
-                            onPress={() =>
-                              toggleReplyInput(
-                                comment.id,
-                                comment.username || comment.owner_email
-                              )
-                            }>
+                            onPress={() => setActiveCommentId(comment.id)}>
                             <Text
                               style={{
                                 color: '#424242',
@@ -469,131 +487,56 @@ const BottomModal = forwardRef((props, ref) => {
                                 marginTop: 10,
                                 marginBottom: 5,
                               }}>
-                              responde
+                              Responde
                             </Text>
                           </TouchableOpacity>
-                          {replyInputVisibility[comment.id]?.visible && (
-                            <View
-                              style={{
-                                marginLeft: 25,
-                                margin: 5,
-                                width: '90%',
-                                borderBottomWidth: 0.3,
-                                borderBottomColor: '#979A9A',
-                              }}>
-                              <View
-                                style={{
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                }}>
-                                <TextInput
-                                  style={styles.replyTextInput}
-                                  ref={el =>
-                                    (replyInputRefs.current[comment.id] = el)
-                                  }
-                                  onChangeText={text => {
-                                    if (replyInputRefs.current[comment.id]) {
-                                      replyInputRefs.current[comment.id].value =
-                                        text
-                                    }
-                                  }}
-                                  placeholder={`Reply @${
-                                    replyInputVisibility[comment.id].userOrEmail
-                                  }`}
-                                  placeholderTextColor={'#979A9A'}
-                                  multiline={true}
-                                  numberOfLines={2}
-                                  scrollEnabled={true}
-                                />
-
-                                <TouchableOpacity
-                                  onPress={() => {
-                                    if (
-                                      replyInputRefs.current[comment.id] &&
-                                      replyInputRefs.current[comment.id].value
-                                    ) {
-                                      const replyText =
-                                        replyInputRefs.current[comment.id].value
-                                      handleReplyComment(comment.id, replyText)
-                                    } else {
-                                      Alert.alert(
-                                        'Please enter a reply before sending it.'
-                                      )
-                                    }
-                                  }}>
-                                  <Image
-                                    style={{
-                                      width: 15,
-                                      height: 15,
-                                    }}
-                                    source={icons.SEND}
-                                  />
-                                </TouchableOpacity>
-                              </View>
-                            </View>
-                          )}
                           <View>
                             {comment.replies &&
-                              comment.replies
-                                .slice(
-                                  0,
-                                  showAllReplies[comment.id]
-                                    ? comment.replies.length
-                                    : 1
-                                )
-                                .map((reply, replyIndex) => (
-                                  <View
-                                    key={replyIndex}
-                                    style={{ marginTop: 10, marginLeft: 20 }}>
-                                    <View
-                                      style={{
-                                        flexDirection: 'row',
-                                        marginBottom: 5,
-                                      }}>
-                                      {/* <Image
-                                        source={
-                                          reply.avatar || icons.TAB_AVATAR
-                                        }
-                                        style={styles.avatar}
-                                      /> */}
+                              comment.replies.map((reply, replyIndex) => (
+                                <View
+                                  key={replyIndex}
+                                  style={{ marginTop: 10, marginLeft: 20 }}>
+                                  <View>
+                                    <View style={{ flexDirection: 'row' }}>
                                       <Text
                                         style={{
-                                          color: '#fff',
-                                          fontSize: 10,
-                                          fontWeight: 'bold',
+                                          color: '#ffff',
+                                          fontSize: 15,
                                           marginLeft: 20,
+                                          fontWeight: 'bold',
                                         }}>
-                                        {reply.username || reply.owner_email}
+                                        {reply.owner_email}
+                                      </Text>
+
+                                      <Text
+                                        style={{
+                                          color: '#ffff',
+                                          fontSize: 12,
+                                          marginLeft: 20,
+                                          paddingTop: 2,
+                                        }}>
+                                        {comment.createdAt
+                                          ? moment(
+                                              comment.createdAt.toDate()
+                                            ).fromNow()
+                                          : 'Date inconnue'}
                                       </Text>
                                     </View>
                                     <Text
                                       key={replyIndex}
                                       style={{
-                                        color: '#fff',
+                                        color: '#ffff',
                                         fontSize: 15,
                                         marginLeft: 20,
+                                        marginTop: 5,
+                                        width: '75%',
+                                        textAlign: 'justify',
                                       }}>
                                       {reply.text}
                                     </Text>
                                   </View>
-                                ))}
-                            {comment.replies && comment.replies.length > 1 && (
-                              <Text
-                                style={{
-                                  color: '#424242',
-                                  fontSize: 14,
-                                  marginTop: 10,
-                                  marginBottom: 5,
-                                }}
-                                onPress={() =>
-                                  toggleRepliesVisibility(comment.id)
-                                }>
-                                {showAllReplies[comment.id]
-                                  ? 'Hide responses'
-                                  : `View all ${comment.replies.length} responses`}
-                              </Text>
-                            )}
+                                </View>
+                              ))}
                           </View>
                         </View>
                       </View>
@@ -658,13 +601,13 @@ const styles = StyleSheet.create({
   footerContaint: {
     backgroundColor: '#000000',
     marginTop: 50,
-    height: 200,
+    height: 220,
   },
   footerContainer: {
     color: '#ffff',
     fontSize: 14,
     textAlign: 'justify',
-    padding: 1,
+    padding: 10,
     height: 50,
     zIndex: 1,
   },
@@ -679,7 +622,7 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     position: 'absolute',
-    right: 5,
+    right: 20,
     bottom: -75,
     padding: 10,
   },
@@ -698,12 +641,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: '800',
     marginTop: 50,
-  },
-  replyTextInput: {
-    fontSize: 15,
-    height: 35,
-    width: '100%',
-    color: '#ffffff',
   },
 })
 

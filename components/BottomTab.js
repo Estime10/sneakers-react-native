@@ -3,64 +3,95 @@ import React, { useEffect, useState } from 'react'
 import { Divider } from 'react-native-elements'
 import { useNavigation, useNavigationState } from '@react-navigation/native'
 import { icons } from '../constants'
+import { firebaseAuth, firestoreDB } from '../config/firebase.config'
+import { doc, onSnapshot } from 'firebase/firestore'
 
 export const BottomTabIcons = [
   {
     name: 'HomeScreen',
     screen: 'HomeScreen',
     icon: icons.HOMESCREEN,
-    iconActive: icons.HOMESCREEN_ACTIVE,
   },
   {
     name: 'SearchScreen',
     screen: 'SearchScreen',
     icon: icons.SEARCHSCREEN,
-    iconActive: icons.SEARCHSCREEN_ACTIVE,
   },
   {
     name: 'NewPostScreen',
     screen: 'NewPostScreen',
     icon: icons.NEWPOSTSCREEN,
-    iconActive: icons.NEWPOSTSCREEN_ACTIVE,
   },
   {
     name: 'ChartScreen',
     screen: 'ChartScreen',
     icon: icons.CHARTSCREEN,
-    iconActive: icons.CHARTSCREEN_ACTIVE,
   },
   {
     name: 'ProfileScreen',
     screen: 'ProfileScreen',
     icon: icons.PROFILESCREEN,
-    iconActive: icons.PROFILESCREEN_ACTIVE,
   },
 ]
 
-const BottomTab = ({ icons }) => {
+const BottomTab = () => {
   const navigation = useNavigation()
+  const currentRoutes = useNavigationState(state => state.routes) // Obtenez les routes actuelles
   const [activeTab, setActiveTab] = useState('Home')
-  const currentRoutes = useNavigationState(state => state.routes)
+  const [userData, setUserData] = useState(null)
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (firebaseAuth.currentUser) {
+        const userEmail = firebaseAuth.currentUser.email
+        const userRef = doc(firestoreDB, 'users', userEmail)
+        onSnapshot(userRef, docSnap => {
+          if (docSnap.exists()) {
+            setUserData(docSnap.data())
+          } else {
+            console.log('No document found!')
+          }
+        })
+      }
+    }
+
+    fetchUserData()
+  }, [])
 
   useEffect(() => {
     if (currentRoutes.length > 0) {
       const currentScreen = currentRoutes[currentRoutes.length - 1].name
       setActiveTab(currentScreen)
     }
-  }, [currentRoutes])
+  }, [currentRoutes]) // Mettez à jour activeTab chaque fois que les routes changent
 
-  const Icon = ({ icon }) => (
-    <TouchableOpacity
-      onPress={() => {
-        setActiveTab(icon.name)
-        navigation.navigate(icon.screen)
-      }}>
-      <Image
-        source={activeTab === icon.name ? icon.iconActive : icon.icon}
-        style={styles.icon}
-      />
-    </TouchableOpacity>
-  )
+  const Icon = ({ icon }) => {
+    const sourceImage =
+      icon.name === 'ProfileScreen' && userData?.avatar
+        ? { uri: userData.avatar }
+        : icon.icon
+
+    const iconStyle = [
+      styles.icon,
+      icon.name === 'ProfileScreen' ? styles.roundIcon : null,
+      activeTab === icon.name ? styles.activeIcon : null,
+    ]
+
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          setActiveTab(icon.name)
+          navigation.navigate(icon.screen)
+        }}>
+        <View style={styles.iconContainer}>
+          <Image
+            source={sourceImage}
+            style={iconStyle}
+          />
+        </View>
+      </TouchableOpacity>
+    )
+  }
 
   return (
     <View style={styles.wrapper}>
@@ -69,7 +100,7 @@ const BottomTab = ({ icons }) => {
         orientation='vertical'
       />
       <View style={styles.container}>
-        {icons.map((icon, index) => (
+        {BottomTabIcons.map((icon, index) => (
           <Icon
             icon={icon}
             key={index}
@@ -87,10 +118,10 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: '#000000',
   },
-
   container: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    width: '100%',
     height: 80,
     padding: 10,
   },
@@ -99,6 +130,14 @@ const styles = StyleSheet.create({
     height: 30,
     marginTop: 10,
     marginBottom: 10,
+  },
+  roundIcon: {
+    borderRadius: 15,
+  },
+  activeIcon: {
+    backgroundColor: '#808080',
+    padding: 5,
+    borderRadius: 5,
   },
 })
 export default BottomTab

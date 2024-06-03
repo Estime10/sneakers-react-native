@@ -224,20 +224,23 @@ const DataGrid = ({ posts, navigation }) => (
         style={styles.iconGrid}
       />
     </View>
-    <TouchableOpacity onPress={() => navigation.push('ListOfPostScreen')}>
-      <View style={styles.grid}>
-        {posts.map((post, index) => (
-          <View
-            key={index}
-            style={styles.box}>
+    <View style={styles.grid}>
+      {posts.map((post, index) => (
+        <View
+          key={index}
+          style={styles.box}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('ListOfPostScreen', { postId: post.id })
+            }}>
             <Image
               source={{ uri: post.imageUrl }}
               style={styles.postImage}
             />
-          </View>
-        ))}
-      </View>
-    </TouchableOpacity>
+          </TouchableOpacity>
+        </View>
+      ))}
+    </View>
   </View>
 )
 

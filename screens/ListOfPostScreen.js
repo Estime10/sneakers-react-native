@@ -9,53 +9,50 @@ import {
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import BottomTab, { BottomTabIcons } from '../components/BottomTab'
-import { collection, onSnapshot } from 'firebase/firestore'
+import { collection, doc, onSnapshot } from 'firebase/firestore'
 import { firebaseAuth, firestoreDB } from '../config/firebase.config'
 import { icons } from '../constants'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import PostList from '../components/profile/list/PostList'
 
-const ListOfPostScreen = ({ navigation }) => {
-  const [posts, setPosts] = useState([])
+const ListOfPostScreen = ({ navigation, route }) => {
+  const [post, setPost] = useState(null)
 
   useEffect(() => {
-    // Assurez-vous que l'utilisateur est connecté et obtenez son ID
     const userId = firebaseAuth.currentUser.email
-    const userPostsRef = collection(firestoreDB, 'users', userId, 'posts')
+    const postId = route.params.postId
+    const postRef = doc(firestoreDB, 'users', userId, 'posts', postId)
 
     const unsubscribe = onSnapshot(
-      userPostsRef,
-      snapshot => {
-        const allPosts = snapshot.docs
-          .map(doc => ({
+      postRef,
+      doc => {
+        if (doc.exists()) {
+          setPost({
             id: doc.id,
             userId: userId,
             ...doc.data(),
-          }))
-          .sort((a, b) => b.createdAt - a.createdAt)
-
-        setPosts(allPosts)
+          })
+        } else {
+          console.error('Aucun document trouvé pour ce post ID:', postId)
+        }
       },
       error => {
-        console.error('Erreur lors de la récupération des posts : ', error)
+        console.error('Erreur lors de la récupération du post : ', error)
       }
     )
 
     return () => unsubscribe()
-  }, [])
+  }, [route])
+
+  if (!post) {
+    return <Text>Chargement du post...</Text>
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <BottomSheetModalProvider>
         <Header navigation={navigation} />
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {posts.map((post, index) => (
-            <PostList
-              post={post}
-              key={index}
-            />
-          ))}
-        </ScrollView>
+        <PostList post={post} />
         <BottomTab icons={BottomTabIcons} />
       </BottomSheetModalProvider>
     </SafeAreaView>

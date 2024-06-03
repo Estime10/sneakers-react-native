@@ -29,21 +29,16 @@ const Post = ({ post }) => {
 
   useEffect(() => {
     const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
+    const commentsCollectionRef = collection(postRef, 'comments')
 
-    const unsubscribe = onSnapshot(postRef, doc => {
+    const unsubscribePost = onSnapshot(postRef, doc => {
       if (doc.exists()) {
+        console.log('Post ID:', post.id)
         setCurrentPost(doc.data())
       } else {
         console.error('No such document!')
       }
     })
-
-    return () => unsubscribe()
-  }, [post.userId, post.id])
-
-  useEffect(() => {
-    const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
-    const commentsCollectionRef = collection(postRef, 'comments')
 
     const unsubscribeComments = onSnapshot(
       commentsCollectionRef,
@@ -56,6 +51,7 @@ const Post = ({ post }) => {
     )
 
     return () => {
+      unsubscribePost()
       unsubscribeComments()
     }
   }, [post.id, post.userId])

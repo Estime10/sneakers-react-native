@@ -1,12 +1,57 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native'
-import React from 'react';
-import { firebaseAuth } from '../../config/firebase.config';
-import { signOut } from 'firebase/auth';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from 'react-native'
+import React from 'react'
+import { firebaseAuth } from '../../config/firebase.config'
+import { signOut } from 'firebase/auth'
 import { icons } from '../../constants'
 
-const handleSignOut = () =>
-  signOut(firebaseAuth).then(() => console.log('sign out'))
-
+const handleSignOut = () => {
+  Alert.alert(
+    'Confirm Logout',
+    'Are you sure you want to logout ?',
+    [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Logout canceled'),
+        style: 'cancel',
+      },
+      {
+        text: 'Logout',
+        onPress: () => {
+          signOut(firebaseAuth)
+            .then(() => {
+              console.log('Logout success')
+              Alert.alert(
+                'Logout success',
+                'You have been logged out successfully.',
+                [{ text: 'OK' }],
+                { cancelable: true }
+              )
+            })
+            .catch(error => {
+              console.error('Logout error:', error)
+              Alert.alert(
+                'Error',
+                'An error occurred while trying to logout.',
+                [
+                  { text: 'Try again', onPress: () => handleSignOut() },
+                  { text: 'Annuler', style: 'cancel' },
+                ],
+                { cancelable: true }
+              )
+            })
+        },
+      },
+    ],
+    { cancelable: false }
+  )
+}
 const Header = ({ navigation }) => {
   return (
     <View style={styles.container}>
@@ -85,4 +130,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default Header;
+export default Header

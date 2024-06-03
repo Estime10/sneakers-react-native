@@ -1,8 +1,16 @@
-import { SafeAreaView, StyleSheet, ScrollView, StatusBar } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import Header from '../components/home/Header';
-import Stories from '../components/home/Stories';
-import Post from '../components/home/Post';
+import {
+  SafeAreaView,
+  StyleSheet,
+  ScrollView,
+  StatusBar,
+  ActivityIndicator,
+  View,
+  Image,
+} from 'react-native'
+import React, { useEffect, useState } from 'react'
+import Header from '../components/home/Header'
+import Stories from '../components/home/Stories'
+import Post from '../components/home/Post'
 import BottomTab, { BottomTabIcons } from '../components/BottomTab'
 import { firestoreDB } from '../config/firebase.config'
 import { collection, getDocs, onSnapshot } from 'firebase/firestore'
@@ -11,6 +19,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 const HomeScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([])
   const [users, setUsers] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const unsubscribeUsers = onSnapshot(
@@ -36,10 +45,9 @@ const HomeScreen = ({ navigation }) => {
   }, [])
 
   useEffect(() => {
-    const allPosts = []
-
     const fetchPosts = async () => {
       const usersSnapshot = await getDocs(collection(firestoreDB, 'users'))
+      const allPosts = []
       for (let userDoc of usersSnapshot.docs) {
         const userId = userDoc.id
 
@@ -69,12 +77,24 @@ const HomeScreen = ({ navigation }) => {
 
           allPosts.sort((a, b) => b.createdAt - a.createdAt)
           setPosts([...allPosts])
+          setIsLoading(false)
         })
       }
     }
 
     fetchPosts()
   }, [users])
+
+  if (isLoading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <Image
+          source={require('../assets/images/logo-small.png')}
+          style={styles.logo}
+        />
+      </View>
+    )
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -94,12 +114,22 @@ const HomeScreen = ({ navigation }) => {
       </BottomSheetModalProvider>
     </SafeAreaView>
   )
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#000000',
     flex: 1,
   },
-});
-export default HomeScreen;
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+  },
+  logo: {
+    width: 400,
+    height: 400,
+  },
+})
+export default HomeScreen
