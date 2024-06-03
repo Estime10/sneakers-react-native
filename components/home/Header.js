@@ -10,6 +10,7 @@ import React from 'react'
 import { firebaseAuth } from '../../config/firebase.config'
 import { signOut } from 'firebase/auth'
 import { icons } from '../../constants'
+import { LinearGradient } from 'expo-linear-gradient'
 
 const handleSignOut = () => {
   Alert.alert(
@@ -71,8 +72,15 @@ const Header = ({ navigation }) => {
         </TouchableOpacity>
 
         <TouchableOpacity>
-          <View style={styles.unreadBadge}>
-            <Text style={styles.unreadBadgeText}></Text>
+          <View>
+            <LinearGradient
+              colors={['#cdcdcd', '#485563', '#2b5876', '#4e4376']}
+              style={styles.unreadBadge}>
+              <Text style={styles.unreadBadgeText}>
+                9+
+                {/* {notifications.length} */}
+              </Text>
+            </LinearGradient>
           </View>
           <Image
             source={icons.CHAT}
@@ -113,19 +121,20 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   unreadBadge: {
-    backgroundColor: '#808080',
     position: 'absolute',
-    left: 35,
-    bottom: 16,
-    borderRadius: 25,
-    width: 14,
-    height: 14,
+    left: 30,
+    bottom: 14,
+    borderRadius: 20,
+    width: 20,
+    height: 20,
     justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 100,
   },
   unreadBadgeText: {
     color: '#fff',
-    fontWeight: '700',
+    fontWeight: '800',
+    fontSize: 10,
     padding: 1,
   },
 })

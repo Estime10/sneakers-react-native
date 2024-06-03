@@ -1,6 +1,6 @@
 import { SafeAreaView, StyleSheet } from 'react-native';
 import React from 'react';
-import AddNewPost from '../components/newPost/AddNewPost';
+import AddNewPost from '../components/post/AddNewPost'
 
 const NewPostScreen = ({ navigation }) => {
   return (

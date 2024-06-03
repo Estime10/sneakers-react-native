@@ -3,22 +3,28 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
-  ActivityIndicator,
   View,
-  Image,
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Header from '../components/home/Header'
 import Stories from '../components/home/Stories'
 import Post from '../components/home/Post'
 import BottomTab, { BottomTabIcons } from '../components/BottomTab'
-import { firestoreDB } from '../config/firebase.config'
-import { collection, getDocs, onSnapshot } from 'firebase/firestore'
+import { firebaseAuth, firestoreDB } from '../config/firebase.config'
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  onSnapshot,
+} from 'firebase/firestore'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
+import { LoadingImage } from '../constants/loading'
 
 const HomeScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([])
   const [users, setUsers] = useState([])
+  const [currentUser, setCurrentUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -42,6 +48,21 @@ const HomeScreen = ({ navigation }) => {
     return () => {
       unsubscribeUsers()
     }
+  }, [])
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const userId = firebaseAuth.currentUser.email
+      const userRef = doc(firestoreDB, 'users', userId)
+      const userSnap = await getDoc(userRef)
+      if (userSnap.exists()) {
+        setCurrentUser(userSnap.data())
+      } else {
+        console.log("Aucune donnée disponible pour l'utilisateur actuel.")
+      }
+    }
+
+    fetchCurrentUser()
   }, [])
 
   useEffect(() => {
@@ -85,30 +106,29 @@ const HomeScreen = ({ navigation }) => {
     fetchPosts()
   }, [users])
 
-  if (isLoading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <Image
-          source={require('../assets/images/logo-small.png')}
-          style={styles.logo}
-        />
-      </View>
-    )
-  }
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle='light-content' />
       <Header navigation={navigation} />
-      <Stories />
+      <Stories navigation={navigation} />
       <BottomSheetModalProvider>
         <ScrollView showsVerticalScrollIndicator={false}>
-          {posts.map((post, index) => (
-            <Post
-              post={post}
-              key={index}
-            />
-          ))}
+          {isLoading ? (
+            <View style={styles.loaderContainer}>
+              <LoadingImage />
+            </View>
+          ) : (
+            posts.map((post, index) => {
+              const user = users.find(u => u.id === post.userId)
+              return (
+                <Post
+                  post={post}
+                  userData={user}
+                  key={index}
+                />
+              )
+            })
+          )}
         </ScrollView>
         <BottomTab icons={BottomTabIcons} />
       </BottomSheetModalProvider>
@@ -126,10 +146,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#000000',
-  },
-  logo: {
-    width: 400,
-    height: 400,
+    marginTop: 100,
   },
 })
 export default HomeScreen

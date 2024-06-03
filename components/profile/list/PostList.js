@@ -22,7 +22,7 @@ import { icons } from '../../../constants'
 import CommentBottomSheet from '../../modal/CommentBottomSheet'
 import moment from 'moment/moment'
 
-const Post = ({ post }) => {
+const Post = ({ post, userData }) => {
   const [currentPost, setCurrentPost] = useState(post)
   const [commentCount, setCommentCount] = useState(0)
   const commentSheetRef = useRef(null)
@@ -33,7 +33,6 @@ const Post = ({ post }) => {
 
     const unsubscribePost = onSnapshot(postRef, doc => {
       if (doc.exists()) {
-        console.log('Post ID:', post.id)
         setCurrentPost(doc.data())
       } else {
         console.error('No such document!')
@@ -100,7 +99,10 @@ const Post = ({ post }) => {
         width={1}
         orientation='vertical'
       />
-      <PostHeader post={post} />
+      <PostHeader
+        post={post}
+        userData={userData}
+      />
       <PostImage post={post} />
       <View style={{ marginHorizontal: 15, marginTop: 10 }}>
         <PostFooter
@@ -124,7 +126,7 @@ const Post = ({ post }) => {
   )
 }
 
-const PostHeader = ({ post }) => (
+const PostHeader = ({ post, userData }) => (
   <View
     style={{
       flexDirection: 'row',
@@ -133,10 +135,17 @@ const PostHeader = ({ post }) => (
       margin: 5,
     }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-      <Image
-        source={post.avatar ? post.avatar : icons.TAB_AVATAR}
-        style={styles.story}
-      />
+      {userData?.avatar ? (
+        <Image
+          source={{ uri: userData.avatar }}
+          style={styles.story}
+        />
+      ) : (
+        <Image
+          source={icons.TAB_AVATAR}
+          style={styles.storyEmpty}
+        />
+      )}
       <Text
         style={{
           color: 'white',
@@ -144,7 +153,7 @@ const PostHeader = ({ post }) => (
           fontSize: 14,
           fontWeight: 'bold',
         }}>
-        {post.user}
+        {userData?.username || userData?.email}
       </Text>
     </View>
     <TouchableOpacity>
@@ -269,8 +278,15 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     marginLeft: 6,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: '#fff',
   },
-
+  storyEmpty: {
+    width: 35,
+    height: 35,
+    marginLeft: 6,
+  },
   footerIcon: {
     width: 25,
     height: 25,

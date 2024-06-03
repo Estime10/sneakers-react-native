@@ -4,14 +4,13 @@ import {
   Image,
   TextInput,
   StyleSheet,
-  Button,
   Alert,
   TouchableOpacity,
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
-import { Divider } from 'react-native-elements'
+import { Divider, Button } from 'react-native-elements'
 import { LinearGradient } from 'expo-linear-gradient'
 import * as ImagePicker from 'expo-image-picker'
 import {
@@ -307,8 +306,22 @@ const FormikModifyProfile = ({ navigation }) => {
               </LinearGradient>
             </TouchableOpacity>
             <Button
-              title='reset'
-              onPress={() => confirmClear(setFieldValue, resetForm)} // Passez resetForm à confirmClear
+              title='RESET'
+              onPress={() => confirmClear(setFieldValue, resetForm)}
+              buttonStyle={{
+                backgroundColor: 'rgba(112, 112, 112, 0.5)',
+                borderRadius: 10,
+              }}
+              titleStyle={{
+                color: '#fff',
+                fontWeight: 'bold',
+                fontSize: 12,
+              }}
+              containerStyle={{
+                width: 100,
+                marginTop: 15,
+                marginLeft: 155,
+              }}
             />
           </View>
         </>

@@ -1,7 +1,6 @@
 import {
   StyleSheet,
   SafeAreaView,
-  ScrollView,
   View,
   TouchableOpacity,
   Image,
@@ -9,7 +8,7 @@ import {
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import BottomTab, { BottomTabIcons } from '../components/BottomTab'
-import { collection, doc, onSnapshot } from 'firebase/firestore'
+import { doc, getDoc, onSnapshot } from 'firebase/firestore'
 import { firebaseAuth, firestoreDB } from '../config/firebase.config'
 import { icons } from '../constants'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
@@ -17,9 +16,25 @@ import PostList from '../components/profile/list/PostList'
 
 const ListOfPostScreen = ({ navigation, route }) => {
   const [post, setPost] = useState(null)
+  const [currentUser, setCurrentUser] = useState(null)
 
   useEffect(() => {
-    const userId = firebaseAuth.currentUser.email
+    const fetchCurrentUser = async () => {
+      const userId = firebaseAuth.currentUser.email
+      const userRef = doc(firestoreDB, 'users', userId)
+      const userSnap = await getDoc(userRef)
+      if (userSnap.exists()) {
+        setCurrentUser(userSnap.data())
+      } else {
+        console.log("Aucune donnée disponible pour l'utilisateur actuel.")
+      }
+    }
+
+    fetchCurrentUser()
+  }, [])
+
+  useEffect(() => {
+    const userId = firebaseAuth.currentUser.email // Assurez-vous que l'utilisateur est connecté
     const postId = route.params.postId
     const postRef = doc(firestoreDB, 'users', userId, 'posts', postId)
 
@@ -45,14 +60,17 @@ const ListOfPostScreen = ({ navigation, route }) => {
   }, [route])
 
   if (!post) {
-    return <Text>Chargement du post...</Text>
+    return <Text>Loading post...</Text>
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <BottomSheetModalProvider>
         <Header navigation={navigation} />
-        <PostList post={post} />
+        <PostList
+          post={post}
+          userData={currentUser}
+        />
         <BottomTab icons={BottomTabIcons} />
       </BottomSheetModalProvider>
     </SafeAreaView>

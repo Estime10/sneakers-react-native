@@ -2,18 +2,15 @@ import {
   View,
   Text,
   Image,
-  TextInput,
   StyleSheet,
-  Button,
   Alert,
   TouchableOpacity,
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
-import { Divider, Button as RNButton } from 'react-native-elements'
+import { Button } from 'react-native-elements'
 import { LinearGradient } from 'expo-linear-gradient'
-
 import * as ImagePicker from 'expo-image-picker'
 import {
   firebaseAuth,
@@ -35,10 +32,9 @@ const PLACEHOLDER_IMAGE =
 
 const uploadPostSchema = Yup.object().shape({
   imageUrl: Yup.string().required('an image is required'),
-  caption: Yup.string().max(2200, 'Caption has reached the character limit'),
 })
 
-const FormikPostUploader = ({ navigation }) => {
+const FormikStoryUploader = ({ navigation }) => {
   const [thumbnailUrl, setThumbnailUrl] = useState(PLACEHOLDER_IMAGE)
   const [posts, setPosts] = useState([])
 
@@ -53,15 +49,14 @@ const FormikPostUploader = ({ navigation }) => {
         throw new Error('User document does not exist')
       }
 
-      await addDoc(collection(firestoreDB, 'users', userId, 'posts'), {
+      await addDoc(collection(firestoreDB, 'users', userId, 'stories'), {
         imageUrl: imageUrl,
         user: userId,
-        avatar: currentUser.photoURL,
         owner_uid: currentUser.uid,
         owner_email: currentUser.email,
-        caption: caption,
         createdAt: serverTimestamp(),
         likes_by_users: [],
+        username: userDoc.data().username,
       })
 
       navigation.goBack()
@@ -75,7 +70,7 @@ const FormikPostUploader = ({ navigation }) => {
     const fetchUserPosts = async () => {
       if (firebaseAuth.currentUser) {
         const userId = firebaseAuth.currentUser.email
-        const userPostsRef = collection(firestoreDB, 'users', userId, 'posts')
+        const userPostsRef = collection(firestoreDB, 'users', userId, 'stories')
 
         // Écouter les changements dans les posts de l'utilisateur
         const unsubscribe = onSnapshot(userPostsRef, snapshot => {
@@ -128,23 +123,56 @@ const FormikPostUploader = ({ navigation }) => {
     }
   }
 
+  const confirmSubmit = handleSubmit => {
+    Alert.alert(
+      'Proceed',
+      'Are you sure you want to submit these modifications ?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Submission cancelled'),
+          style: 'cancel',
+        },
+        {
+          text: 'Confirm',
+          onPress: () => {
+            handleSubmit()
+          },
+        },
+      ]
+    )
+  }
+
+  const confirmClear = resetFields => {
+    Alert.alert(
+      'Confirm reset',
+      'Are you sure you want to cancel the modifications?',
+      [
+        {
+          text: 'No',
+          onPress: () => console.log('Reset cancelled'),
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          onPress: () => {
+            console.log('Reset confirmed')
+            resetFields()
+          },
+        },
+      ]
+    )
+  }
+
   return (
     <Formik
-      initialValues={{ caption: '', imageUrl: '' }}
+      initialValues={{ imageUrl: '' }}
       onSubmit={values => {
-        uploadPostToFirebase(values.imageUrl, values.caption)
+        uploadPostToFirebase(values.imageUrl)
       }}
       validationSchema={uploadPostSchema}
       validateOnMount={true}>
-      {({
-        handleBlur,
-        handleChange,
-        handleSubmit,
-        setFieldValue,
-        values,
-        errors,
-        isValid,
-      }) => (
+      {({ handleSubmit, setFieldValue, errors, isValid }) => (
         <>
           <View style={styles.container}>
             <Image
@@ -160,22 +188,6 @@ const FormikPostUploader = ({ navigation }) => {
               }}
             />
           </View>
-          <TextInput
-            style={[styles.CaptiontextInput, { maxHeight: 200 }]}
-            placeholder='Caption'
-            placeholderTextColor={'#979A9A'}
-            onChangeText={handleChange('caption')}
-            onBlur={handleBlur('caption')}
-            value={values.caption}
-            multiline={true}
-            numberOfLines={4}
-            scrollEnabled={true}
-          />
-          <Divider
-            width={0.2}
-            orientation='vertical'
-            style={{ marginTop: 10 }}
-          />
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={() => selectImage(setFieldValue)}>
               <LinearGradient
@@ -183,20 +195,31 @@ const FormikPostUploader = ({ navigation }) => {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.gradientButton}>
-                <Text style={styles.buttonText}>UPLOAD IMAGE</Text>
+                <Text style={styles.buttonText}>UPLOAD STORY</Text>
               </LinearGradient>
             </TouchableOpacity>
             {isValid && (
               <Button
                 title='clear'
                 onPress={() => {
-                  setThumbnailUrl(PLACEHOLDER_IMAGE)
-                  setFieldValue('imageUrl', '')
-                  setFieldValue('caption', '')
+                  confirmClear(() => {
+                    setThumbnailUrl(PLACEHOLDER_IMAGE)
+                    setFieldValue('imageUrl', '')
+                  })
+                }}
+                buttonStyle={{
+                  backgroundColor: 'rgba(112, 112, 112, 0.5)',
+                  borderRadius: 10,
                 }}
                 titleStyle={{
-                  color: '#000',
+                  color: '#fff',
                   fontWeight: 'bold',
+                  fontSize: 12,
+                }}
+                containerStyle={{
+                  width: 100,
+                  marginTop: 25,
+                  marginLeft: 32,
                 }}
               />
             )}
@@ -206,7 +229,7 @@ const FormikPostUploader = ({ navigation }) => {
           )}
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              onPress={handleSubmit}
+              onPress={() => confirmSubmit(handleSubmit)}
               disabled={!isValid}>
               <LinearGradient
                 colors={
@@ -217,7 +240,7 @@ const FormikPostUploader = ({ navigation }) => {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={[styles.gradientButton, { opacity: isValid ? 1 : 0.5 }]}>
-                <Text style={styles.buttonText}>SHARE</Text>
+                <Text style={styles.buttonText}>SUBMIT</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -281,4 +304,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default FormikPostUploader
+export default FormikStoryUploader

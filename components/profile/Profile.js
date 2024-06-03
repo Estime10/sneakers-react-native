@@ -91,21 +91,21 @@ const Options = () => (
     <View style={styles.iconContainer}>
       <TouchableOpacity>
         <Image
-          source={icons.PLUS_HEADER}
-          style={styles.icon}
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity>
-        <Image
           source={icons.NOTIFICATION}
           style={styles.icon}
         />
       </TouchableOpacity>
 
       <TouchableOpacity>
-        <View style={styles.unreadBadge}>
-          <Text></Text>
+        <View>
+          <LinearGradient
+            colors={['#cdcdcd', '#485563', '#2b5876', '#4e4376']}
+            style={styles.unreadBadge}>
+            <Text style={styles.unreadBadgeText}>
+              9+
+              {/* {notifications.length} */}
+            </Text>
+          </LinearGradient>
         </View>
         <Image
           source={icons.CHAT}
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     color: '#ffff',
   },
   useruid: {
-    fontSize: 10,
+    fontSize: 14,
     color: '#808080',
   },
   postContent: {
@@ -381,6 +381,23 @@ const styles = StyleSheet.create({
     resizeMode: 'fit',
     borderRadius: 10,
     marginBottom: 10,
+  },
+  unreadBadge: {
+    position: 'absolute',
+    left: 30,
+    bottom: 5,
+    borderRadius: 20,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 100,
+  },
+  unreadBadgeText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 10,
+    padding: 1,
   },
 })
 export default Profiles

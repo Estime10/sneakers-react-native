@@ -3505,6 +3505,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"abortcontroller-polyfill@npm:^1.4.0":
+  version: 1.7.5
+  resolution: "abortcontroller-polyfill@npm:1.7.5"
+  checksum: 10c0/d7a5ab6fda4f9a54f22ddeb233a2564d2f4f857ec17be25fee21a91bb5090bee57c630c454634b5c4b93fc06bd90d592d1f2fc69f77cd28791ac0fe361feb7d2
+  languageName: node
+  linkType: hard
+
 "accepts@npm:^1.3.7, accepts@npm:^1.3.8, accepts@npm:~1.3.5, accepts@npm:~1.3.7":
   version: 1.3.8
   resolution: "accepts@npm:1.3.8"
@@ -4157,6 +4164,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"clamp@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "clamp@npm:1.0.1"
+  checksum: 10c0/8f95ccbc5d646a98c1d690bce820f3d060a5267242083e8994f70dc504ce441dbc7b8ef13b93819129fc166e7a5b6abd320f109bdba0f49b8dcc794710987c97
+  languageName: node
+  linkType: hard
+
 "clean-stack@npm:^2.0.0":
   version: 2.2.0
   resolution: "clean-stack@npm:2.2.0"
@@ -4407,6 +4421,15 @@ __metadata:
     safe-buffer: "npm:5.1.2"
     vary: "npm:~1.1.2"
   checksum: 10c0/138db836202a406d8a14156a5564fb1700632a76b6e7d1546939472895a5304f2b23c80d7a22bf44c767e87a26e070dbc342ea63bb45ee9c863354fa5556bbbc
+  languageName: node
+  linkType: hard
+
+"concat-color-matrices@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "concat-color-matrices@npm:1.0.0"
+  dependencies:
+    invariant: "npm:^2.2.4"
+  checksum: 10c0/30311f564ffbf06e8d4ca2493f9cb4058d05d2b30ea384e63d32b9138a49873ab2ccb98940108744e015efb60262af274f469818c406dabdcd188c65ea31157d
   languageName: node
   linkType: hard
 
@@ -6149,6 +6172,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"initials@npm:^3.0.1":
+  version: 3.1.2
+  resolution: "initials@npm:3.1.2"
+  checksum: 10c0/1b382414a12cb455b1c0121b400f17a99cd24171be1a1c4ff988b3a61195812105f9adbde35b37d889f8a749766539b67e482e914e6abcda37d45d007a4ca090
+  languageName: node
+  linkType: hard
+
 "inline-style-prefixer@npm:^6.0.1":
   version: 6.0.4
   resolution: "inline-style-prefixer@npm:6.0.4"
@@ -7052,6 +7082,13 @@ __metadata:
   version: 4.5.0
   resolution: "lodash.isequal@npm:4.5.0"
   checksum: 10c0/dfdb2356db19631a4b445d5f37868a095e2402292d59539a987f134a8778c62a2810c2452d11ae9e6dcac71fc9de40a6fedcb20e2952a15b431ad8b29e50e28f
+  languageName: node
+  linkType: hard
+
+"lodash.pick@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "lodash.pick@npm:4.4.0"
+  checksum: 10c0/a04c460b95d1aaa44e9513d1dacf72ea74d838da843e45831de9de64c303f13cdde1859702a6f4dcef417816898ffd47c6ae0614c957ac70245bed2809b8d2e2
   languageName: node
   linkType: hard
 
@@ -8638,7 +8675,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^17.0.1":
+"react-is@npm:^17.0.1, react-is@npm:^17.0.2":
   version: 17.0.2
   resolution: "react-is@npm:17.0.2"
   checksum: 10c0/2bdb6b93fbb1820b024b496042cce405c57e2f85e777c9aabd55f9b26d145408f9f74f5934676ffdc46f3dcff656d78413a6e43968e7b3f92eea35b3052e9053
@@ -8677,6 +8714,33 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 10c0/cd31794870edc51bc7051bf22893b19cebda5754c2fbd381f72e6ae6a718c26c5cf6966ad2f80e15e3a3217d09cc3e2e1637132f70bf44aacf62ea15a7636c98
+  languageName: node
+  linkType: hard
+
+"react-native-image-crop-picker@npm:^0.41.1":
+  version: 0.41.1
+  resolution: "react-native-image-crop-picker@npm:0.41.1"
+  peerDependencies:
+    react-native: ">=0.40.0"
+  checksum: 10c0/889866ced305f72da883090824bab6187634a30fe5ca44e198039e6a6fbbde7f3c71af9200e8c65e05c5cd00fff82622c6e78021beb67427b3b23857c0b19d9b
+  languageName: node
+  linkType: hard
+
+"react-native-image-filter-kit@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "react-native-image-filter-kit@npm:0.8.0"
+  dependencies:
+    concat-color-matrices: "npm:^1.0.0"
+    lodash.pick: "npm:^4.4.0"
+    react-is: "npm:^17.0.2"
+    rgba-to-rgb: "npm:^1.0.2"
+    rn-color-matrices: "npm:^4.1.0"
+    ts-tiny-invariant: "npm:0.0.3"
+  peerDependencies:
+    "@babel/runtime": "*"
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/b398ddbcc33dc5273594e60d0727c6b32cd8156f45fe0cc9874806600d5c5592a480316233e783c46b6aca57036adabe82b229715ab5b6f93a7945dec36b5b8d
   languageName: node
   linkType: hard
 
@@ -8751,6 +8815,20 @@ __metadata:
   peerDependencies:
     react-native: "*"
   checksum: 10c0/3723a84592864d4248ff5c05fb4fc032cbb3b6a96f4452f1cca78a53d78b8fae8ef99158c6f48e89047405e2e91dcf563b01f3463d29ff4dbc7904432530b795
+  languageName: node
+  linkType: hard
+
+"react-native-user-avatar@npm:^1.0.8":
+  version: 1.0.8
+  resolution: "react-native-user-avatar@npm:1.0.8"
+  dependencies:
+    abortcontroller-polyfill: "npm:^1.4.0"
+    initials: "npm:^3.0.1"
+    prop-types: "npm:^15.7.2"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/e5706a57ddd50b036118323fd9a30f11c3ecc87877a112c1935e2455de93dbb4c417130d71756c2a1c03eca8412f02136ea6b5cc899edf39e2413836b9917f51
   languageName: node
   linkType: hard
 
@@ -9119,6 +9197,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rgba-to-rgb@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "rgba-to-rgb@npm:1.0.2"
+  dependencies:
+    invariant: "npm:^2.2.4"
+  checksum: 10c0/3bd80baaf9c1c3d629fbea4988a7fc60a1f4a5b08870b7a6bb0b886f14e8ad9ea92c6565670c45f483dfeb536efe2105418870f25b7a8f3e8cc502d6b54d8ed2
+  languageName: node
+  linkType: hard
+
 "rimraf@npm:^2.6.2":
   version: 2.7.1
   resolution: "rimraf@npm:2.7.1"
@@ -9160,6 +9247,17 @@ __metadata:
   bin:
     rimraf: ./bin.js
   checksum: 10c0/f1e646f8c567795f2916aef7aadf685b543da6b9a53e482bb04b07472c7eef2b476045ba1e29f401c301c66b630b22b815ab31fdd60c5e1ae6566ff523debf45
+  languageName: node
+  linkType: hard
+
+"rn-color-matrices@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "rn-color-matrices@npm:4.1.0"
+  dependencies:
+    clamp: "npm:^1.0.1"
+  peerDependencies:
+    react-native: "*"
+  checksum: 10c0/6f038be5f6c479360f8440cd5c08edf7134b0a2daefc0379092ddc87843253b9cafde6d8216a367207523a1ff70302a63c58401df60b36517b1e0df60a701f72
   languageName: node
   linkType: hard
 
@@ -9557,10 +9655,13 @@ __metadata:
     react-native: "npm:0.74.1"
     react-native-elements: "npm:^3.4.3"
     react-native-gesture-handler: "npm:~2.16.1"
+    react-native-image-crop-picker: "npm:^0.41.1"
+    react-native-image-filter-kit: "npm:^0.8.0"
     react-native-linear-gradient: "npm:^2.8.3"
     react-native-reanimated: "npm:~3.10.1"
     react-native-safe-area-context: "npm:4.10.1"
     react-native-screens: "npm:3.31.1"
+    react-native-user-avatar: "npm:^1.0.8"
     react-native-vector-icons: "npm:^10.1.0"
     react-native-web: "npm:~0.19.6"
     valid-url: "npm:^1.0.9"
@@ -10208,6 +10309,13 @@ __metadata:
   version: 0.1.13
   resolution: "ts-interface-checker@npm:0.1.13"
   checksum: 10c0/232509f1b84192d07b81d1e9b9677088e590ac1303436da1e92b296e9be8e31ea042e3e1fd3d29b1742ad2c959e95afe30f63117b8f1bc3a3850070a5142fea7
+  languageName: node
+  linkType: hard
+
+"ts-tiny-invariant@npm:0.0.3":
+  version: 0.0.3
+  resolution: "ts-tiny-invariant@npm:0.0.3"
+  checksum: 10c0/6c0ae9debc38341b002ae0cc4a1e4ca2dc9b5ec52012f6726d8fa50d392c0b2da44632540d00852ab3f117f5329328627dc82e59b46c0d6a3bee4d7965fb2e30
   languageName: node
   linkType: hard
 

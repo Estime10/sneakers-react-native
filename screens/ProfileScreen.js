@@ -1,4 +1,10 @@
-import { StyleSheet, SafeAreaView, ScrollView, StatusBar } from 'react-native'
+import {
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  View,
+} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Profile from '../components/profile/Profile'
 import BottomTab, { BottomTabIcons } from '../components/BottomTab'

@@ -1,10 +1,17 @@
-import { View, TouchableOpacity, Image, StyleSheet } from 'react-native'
+import {
+  View,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Divider } from 'react-native-elements'
 import { useNavigation, useNavigationState } from '@react-navigation/native'
 import { icons } from '../constants'
 import { firebaseAuth, firestoreDB } from '../config/firebase.config'
 import { doc, onSnapshot } from 'firebase/firestore'
+import { LinearGradient } from 'expo-linear-gradient'
 
 export const BottomTabIcons = [
   {
@@ -36,8 +43,9 @@ export const BottomTabIcons = [
 
 const BottomTab = () => {
   const navigation = useNavigation()
-  const currentRoutes = useNavigationState(state => state.routes) // Obtenez les routes actuelles
+  const currentRoutes = useNavigationState(state => state.routes)
   const [activeTab, setActiveTab] = useState('Home')
+  const [isLoading, setIsLoading] = useState(true)
   const [userData, setUserData] = useState(null)
 
   useEffect(() => {
@@ -56,6 +64,7 @@ const BottomTab = () => {
     }
 
     fetchUserData()
+    setIsLoading(false)
   }, [])
 
   useEffect(() => {
@@ -63,13 +72,13 @@ const BottomTab = () => {
       const currentScreen = currentRoutes[currentRoutes.length - 1].name
       setActiveTab(currentScreen)
     }
-  }, [currentRoutes]) // Mettez à jour activeTab chaque fois que les routes changent
+  }, [currentRoutes])
 
   const Icon = ({ icon }) => {
     const sourceImage =
       icon.name === 'ProfileScreen' && userData?.avatar
         ? { uri: userData.avatar }
-        : icon.icon
+        : icon.icon || icons.PROFILESCREEN
 
     const iconStyle = [
       styles.icon,
@@ -82,13 +91,28 @@ const BottomTab = () => {
         onPress={() => {
           setActiveTab(icon.name)
           navigation.navigate(icon.screen)
-        }}>
-        <View style={styles.iconContainer}>
+        }}
+        style={styles.iconContainer}>
+        {isLoading ? (
+          <ActivityIndicator
+            size='small'
+            color='white'
+          />
+        ) : activeTab === icon.name ? (
+          <LinearGradient
+            colors={['#485563', '#2b5876', '#4e4376']}
+            style={styles.gradient}>
+            <Image
+              source={sourceImage}
+              style={iconStyle}
+            />
+          </LinearGradient>
+        ) : (
           <Image
             source={sourceImage}
             style={iconStyle}
           />
-        </View>
+        )}
       </TouchableOpacity>
     )
   }
@@ -115,14 +139,14 @@ const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',
     width: '100%',
-    bottom: 0,
+    bottom: 10,
     backgroundColor: '#000000',
   },
   container: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-    height: 80,
+    height: 70,
     padding: 10,
   },
   icon: {
@@ -134,10 +158,29 @@ const styles = StyleSheet.create({
   roundIcon: {
     borderRadius: 15,
   },
-  activeIcon: {
-    backgroundColor: '#808080',
-    padding: 5,
-    borderRadius: 5,
+  iconContainer: {
+    alignItems: 'center',
+    width: 55,
+    backgroundColor: '#000',
+    borderRadius: 10,
+  },
+  gradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 10,
+  },
+  iconText: {
+    color: 'white',
+    fontSize: 12,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+    marginTop: 100,
   },
 })
 export default BottomTab

@@ -22,10 +22,11 @@ import CommentBottomSheet from '../modal/CommentBottomSheet'
 import { icons } from '../../constants'
 import moment from 'moment/moment'
 
-const Post = ({ post }) => {
+const Post = ({ post, userData }) => {
   const [currentPost, setCurrentPost] = useState(post)
   const [commentCount, setCommentCount] = useState(0)
   const commentSheetRef = useRef(null)
+
   useEffect(() => {
     const postRef = doc(firestoreDB, 'users', post.userId, 'posts', post.id)
 
@@ -103,7 +104,10 @@ const Post = ({ post }) => {
         width={1}
         orientation='vertical'
       />
-      <PostHeader post={post} />
+      <PostHeader
+        post={post}
+        userData={userData}
+      />
       <PostImage post={post} />
       <View style={{ marginHorizontal: 15, marginTop: 10 }}>
         <PostFooter
@@ -127,7 +131,7 @@ const Post = ({ post }) => {
   )
 }
 
-const PostHeader = ({ post }) => (
+const PostHeader = ({ post, userData }) => (
   <View
     style={{
       flexDirection: 'row',
@@ -136,24 +140,31 @@ const PostHeader = ({ post }) => (
       margin: 5,
     }}>
     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-      <Image
-        source={post.avatar ? post.avatar : icons.TAB_AVATAR}
-        style={styles.story}
-      />
+      {userData?.avatar ? (
+        <Image
+          source={{ uri: userData.avatar }}
+          style={styles.story}
+        />
+      ) : (
+        <Image
+          source={icons.TAB_AVATAR}
+          style={styles.storyEmpty}
+        />
+      )}
       <Text
         style={{
-          color: 'white',
+          color: '#fff',
           marginLeft: 8,
           fontSize: 14,
           fontWeight: 'bold',
         }}>
-        {post.user}
+        {userData?.username || userData?.email}
       </Text>
     </View>
     <TouchableOpacity>
       <Text
         style={{
-          color: 'white',
+          color: '#fff',
           fontWeight: 900,
           transform: [{ rotate: '90deg' }],
         }}>
@@ -229,7 +240,7 @@ const Likes = ({ post }) => (
   <View style={{ flexDirection: 'row', marginTop: 5 }}>
     <Text
       style={{
-        color: 'white',
+        color: '#fff',
         fontWeight: 'bold',
         fontSize: 12,
         marginTop: 5,
@@ -242,7 +253,7 @@ const Likes = ({ post }) => (
 
 const Caption = ({ post }) => (
   <View style={{ marginTop: 10 }}>
-    <Text style={{ color: 'white' }}>
+    <Text style={{ color: '#fff' }}>
       <Text style={{ fontWeight: '800' }}>{post.user}</Text>
       <Text> {post.caption}</Text>
     </Text>
@@ -267,14 +278,20 @@ const CommentSection = ({ commentCount, handleComment, post }) => (
   </View>
 )
 
-
 const styles = StyleSheet.create({
   story: {
     width: 35,
     height: 35,
     marginLeft: 6,
+    borderWidth: 2,
+    borderColor: '#fff',
+    borderRadius: 50,
   },
-
+  storyEmpty: {
+    width: 35,
+    height: 35,
+    marginLeft: 6,
+  },
   footerIcon: {
     width: 25,
     height: 25,
