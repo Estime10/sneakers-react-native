@@ -7,9 +7,9 @@ import {
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Header from '../components/home/Header'
-import Stories from '../components/home/Stories'
+import Stories from '../components/home/SubHeader'
 import Post from '../components/home/Post'
-import BottomTab, { BottomTabIcons } from '../components/BottomTab'
+import BottomTab, { BottomTabIcons } from '../components/navbar/BottomTab'
 import { firebaseAuth, firestoreDB } from '../config/firebase.config'
 import {
   collection,

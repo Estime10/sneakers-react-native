@@ -7,7 +7,7 @@ import {
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Profile from '../components/profile/Profile'
-import BottomTab, { BottomTabIcons } from '../components/BottomTab'
+import BottomTab, { BottomTabIcons } from '../components/navbar/BottomTab'
 import { firestoreDB } from '../config/firebase.config'
 import { collection, getDocs, onSnapshot } from 'firebase/firestore'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'

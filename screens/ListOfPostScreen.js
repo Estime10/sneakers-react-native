@@ -7,7 +7,7 @@ import {
   Text,
 } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import BottomTab, { BottomTabIcons } from '../components/BottomTab'
+import BottomTab, { BottomTabIcons } from '../components/navbar/BottomTab'
 import { doc, getDoc, onSnapshot } from 'firebase/firestore'
 import { firebaseAuth, firestoreDB } from '../config/firebase.config'
 import { icons } from '../constants'

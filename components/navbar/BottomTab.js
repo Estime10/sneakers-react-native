@@ -8,8 +8,8 @@ import {
 import React, { useEffect, useState } from 'react'
 import { Divider } from 'react-native-elements'
 import { useNavigation, useNavigationState } from '@react-navigation/native'
-import { icons } from '../constants'
-import { firebaseAuth, firestoreDB } from '../config/firebase.config'
+import { icons } from '../../constants'
+import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { LinearGradient } from 'expo-linear-gradient'
 

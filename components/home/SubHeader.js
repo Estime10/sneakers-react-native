@@ -5,9 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-} from 'react-native';
+} from 'react-native'
 import React, { useState, useEffect } from 'react'
-import { icons } from '../../constants/'
+import { icons } from '../../constants'
 import { collection, doc, onSnapshot } from 'firebase/firestore'
 import { firebaseAuth, firestoreDB } from '../../config/firebase.config'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -59,10 +59,13 @@ const Stories = ({ navigation }) => {
             style={styles.userContainer}>
             <View>
               {user.avatar ? (
-                <Image
-                  source={{ uri: user.avatar }}
-                  style={styles.story}
-                />
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('StoryScreen')}>
+                  <Image
+                    source={{ uri: user.avatar }}
+                    style={styles.story}
+                  />
+                </TouchableOpacity>
               ) : (
                 <UserAvatar
                   size={user.size || 50}
@@ -131,7 +134,7 @@ const styles = StyleSheet.create({
     height: 24,
   },
   username: {
-    color: 'white',
+    color: '#fff',
     marginTop: 5,
     fontSize: 10,
     fontWeight: 'semibold',
@@ -140,4 +143,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 })
-export default Stories;
+export default Stories

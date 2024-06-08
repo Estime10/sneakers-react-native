@@ -9,6 +9,7 @@ import ModifyProfileScreen from '../screens/ModifyProfileScreen'
 import ModifySettingsScreen from '../screens/ModifySettingsScreen'
 import ListOfPostScreen from '../screens/ListOfPostScreen'
 import NewStoryScreen from '../screens/NewStoryScreen'
+import StoryScreen from '../screens/StoryScreen'
 
 const Stack = createStackNavigator()
 
@@ -18,7 +19,7 @@ const screenOptions = {
 
 export const SignedInStack = () => (
   <Stack.Navigator
-    initialRouteName='HomeScreen'
+    initialRouteName='StoryScreen'
     screenOptions={screenOptions}>
     <Stack.Screen
       name='HomeScreen'
@@ -47,6 +48,10 @@ export const SignedInStack = () => (
     <Stack.Screen
       name='NewStoryScreen'
       component={NewStoryScreen}
+    />
+    <Stack.Screen
+      name='StoryScreen'
+      component={StoryScreen}
     />
   </Stack.Navigator>
 )
