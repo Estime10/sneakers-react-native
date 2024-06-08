@@ -55,8 +55,8 @@ const StoryScreen = () => {
           {
             zIndex: 100 - index,
             width: width,
-            height: 620,
-            top: 140,
+            height: 600,
+            top: 160,
             position: 'absolute',
             aspectRatio: 9 / 16,
             backgroundColor: pageColor,

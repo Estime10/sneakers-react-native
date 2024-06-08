@@ -18,6 +18,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated'
 import usersStories from '../../data/stories'
+import { icons } from '../../constants'
 
 const storyViewDuration = 5 * 1000
 
@@ -80,14 +81,14 @@ const Stories = ({ onNextUser, onPrevUser }) => {
     })
   }
 
-  // useAnimatedReaction(
-  //   () => progress.value,
-  //   (currentValue, previousValue) => {
-  //     if (currentValue !== previousValue && currentValue === 1) {
-  //       runOnJS(goToNextStory)()
-  //     }
-  //   }
-  // )
+  useAnimatedReaction(
+    () => progress.value,
+    (currentValue, previousValue) => {
+      if (currentValue !== previousValue && currentValue === 1) {
+        runOnJS(goToNextStory)()
+      }
+    }
+  )
 
   const indicatorAnimatedStyle = useAnimatedStyle(() => ({
     width: `${progress.value * 100}%`,
@@ -96,18 +97,23 @@ const Stories = ({ onNextUser, onPrevUser }) => {
   return (
     <View style={styles.storyContainer}>
       <Image
-        key={`${user.userId}-${storyIndex}`}
         source={story.uri}
         style={styles.image}
       />
 
       <Pressable
-        style={styles.navPressable}
+        style={({ pressed }) => [
+          styles.navPressableLeft,
+          { opacity: pressed ? 0 : 1 },
+        ]}
         onPress={goToPrevStory}
       />
 
       <Pressable
-        style={[styles.navPressable, { right: 0 }]}
+        style={({ pressed }) => [
+          styles.navPressableRight,
+          { opacity: pressed ? 0 : 1 },
+        ]}
         onPress={goToNextStory}
       />
 
@@ -138,12 +144,24 @@ const Stories = ({ onNextUser, onPrevUser }) => {
         </View>
       </View>
 
-      <View style={styles.footer}>
-        <TextInput
-          style={styles.input}
-          placeholder='Send message'
-          placeholderTextColor='#fff'
-        />
+      <View style={styles.footerContainer}>
+        <View style={styles.footer}>
+          <TextInput
+            style={styles.input}
+            placeholder='Message'
+            placeholderTextColor='#fff'
+          />
+          <View style={styles.iconsContainer}>
+            <Image
+              source={icons.LIKE}
+              style={styles.icon}
+            />
+            <Image
+              source={icons.SEND}
+              style={styles.icon}
+            />
+          </View>
+        </View>
       </View>
     </View>
   )
@@ -183,25 +201,50 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
   },
-  footer: {
+  footerContainer: {
     width: '100%',
-    backgroundColor: '#000',
+    backgroundColor: 'transparent',
     padding: 10,
+    marginBottom: 40,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
   },
   input: {
+    flex: 1,
+    color: '#fff',
+    marginRight: 10,
     borderWidth: 1,
     borderColor: '#fff',
-    padding: 15,
+    padding: 10,
     borderRadius: 50,
-    color: '#fff',
-    marginBottom: 50,
   },
-  navPressable: {
+  iconsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  icon: {
+    width: 20,
+    height: 20,
+    marginLeft: 10,
+  },
+  navPressableLeft: {
     position: 'absolute',
     width: '30%',
     height: '100%',
+    left: 0,
+    zIndex: 1,
   },
-
+  navPressableRight: {
+    position: 'absolute',
+    width: '30%',
+    height: '100%',
+    right: 0,
+    zIndex: 1,
+  },
   indicatorRow: {
     gap: 5,
     flexDirection: 'row',
